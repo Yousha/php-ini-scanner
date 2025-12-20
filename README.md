@@ -10,7 +10,7 @@ _Built using **SOLID** principles, strict_types=1 and PSR compliance._
 
 ## Requirements
 
-1. PHP >= 7.4
+1. PHP >= 7.4 to 8.5
 2. Composer >= 2
 
 ## Screenshots
@@ -42,7 +42,14 @@ php ./vendor/bin/php-ini-scanner scan -p -i /path/to/php.ini
 
 ```
 
-Or to scan current installed PHP:
+Or for Windows paths:
+
+```bash
+php ./vendor/bin/php-ini-scanner scan -p -i "C:\Programs\PHP\php.ini"
+
+```
+
+Or auto-scan current installed PHP:
 
 ```bash
 php ./vendor/bin/php-ini-scanner scan -p
@@ -58,7 +65,13 @@ php ./vendor/bin/php-ini-scanner scan -d -i /path/to/php.ini
 
 ```
 
-Or to scan current installed PHP:
+Or for Windows paths:
+
+```bash
+php ./vendor/bin/php-ini-scanner scan -d -i "C:\Programs\PHP\php.ini"
+
+
+Or auto-scan current installed PHP:
 
 ```bash
 php ./vendor/bin/php-ini-scanner scan -d
