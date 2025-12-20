@@ -62,7 +62,7 @@ final class DevelopmentRules implements RuleSetInterface
             'opcache.log_verbosity_level' => '2',
 
             // --- Other ---
-            'fastcgi.logging' => '0',
+            'fastcgi.logging' => '1',
             'date.timezone' => 'UTC',
         ];
 

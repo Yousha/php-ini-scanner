@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yousha\PhpIniScanner\Tests {
 
-    use Throwable;
     use PHPUnit\Framework\TestCase;
     use Yousha\PhpIniScanner\Commands\ScanCommand;
 
