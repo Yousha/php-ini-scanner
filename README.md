@@ -10,7 +10,7 @@ _Built using **SOLID** principles, strict_types=1 and PSR compliance._
 
 ## Requirements
 
-1. PHP >= 7.4 to 8.5
+1. PHP 7.4 – 8.*
 2. Composer >= 2
 
 ## Screenshots
