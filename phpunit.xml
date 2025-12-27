@@ -9,7 +9,6 @@
     failOnWarning="true" failOnRisky="false"
     timeoutForSmallTests="5" timeoutForMediumTests="30" timeoutForLargeTests="60"
     beStrictAboutTestsThatDoNotTestAnything="true" beStrictAboutOutputDuringTests="false">
-
     <php>
         <env name="APPLICATION_ENVIRONMENT" value="test" />
         <ini name="memory_limit" value="-1" />
