@@ -69,7 +69,7 @@ Or for Windows paths:
 
 ```bash
 php ./vendor/bin/php-ini-scanner scan -d -i "C:\Programs\PHP\php.ini"
-
+```
 
 Or auto-scan current installed PHP:
 
