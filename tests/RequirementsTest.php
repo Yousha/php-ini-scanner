@@ -126,6 +126,7 @@ namespace Yousha\PhpIniScanner\Tests {
                 '.gitignore',
                 '.mailmap',
                 '.phplint.yml',
+                'Checksums.sha256',
                 'composer.json',
                 'LICENSE',
                 '.php-cs-fixer.php',
