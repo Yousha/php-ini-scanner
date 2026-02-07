@@ -56,7 +56,7 @@ final class DevelopmentRules implements RuleSetInterface
             'mail.add_x_header' => 'On', // Useful to debug in dev.
 
             // --- File/Network ---
-            'allow_url_fopen' => 'Off', // To match with production envs.
+            'allow_url_fopen' => 'On', // Used by Composer package manager.
             'allow_url_include' => 'Off', // To match with production envs.
             'cgi.fix_pathinfo' => 'Off', // Security risk.
             'mysqli.allow_local_infile' => 'Off', // Security risk. Prevent arbitrary file reads via SQL.
