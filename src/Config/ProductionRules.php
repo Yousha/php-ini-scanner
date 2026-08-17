@@ -71,6 +71,8 @@ final class ProductionRules implements RuleSetInterface
             'fastcgi.logging' => 'Off',
             'enable_dl' => 'Off',
             'date.timezone' => 'UTC',
+            'assert.active' => 'Off',
+            'default_mimetype' => 'text/html',
         ];
 
         if (PHP_VERSION_ID >= 80000 && PHP_VERSION_ID <= 80400) {

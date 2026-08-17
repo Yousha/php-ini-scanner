@@ -70,6 +70,8 @@ final class DevelopmentRules implements RuleSetInterface
             'fastcgi.logging' => 'On',
             'enable_dl' => 'Off',
             'date.timezone' => 'UTC',
+            'assert.active' => 'On',
+            'default_mimetype' => 'text/html',
         ];
 
         if (PHP_VERSION_ID >= 80000 && PHP_VERSION_ID <= 80400) {
