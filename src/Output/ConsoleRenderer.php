@@ -22,6 +22,7 @@ final class ConsoleRenderer
         $table = new Table($output);
         $table->setFooterTitle($mode);
         $table->setHeaders(['Configuration', 'Current', 'Expected', 'Status']);
+
         $passCount = 0;
 
         foreach ($results as $row) {

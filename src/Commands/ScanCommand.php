@@ -56,7 +56,22 @@ final class ScanCommand extends Command
         $phpIniPath = $input->getOption('ini-path');
 
         if (!$isDev && !$isProd) {
+            $output->writeln('');
             $output->writeln('<error>Error: You must specify a mode: -d or -p</error>');
+            $output->writeln('');
+            $output->writeln('<info>Usage:</info>');
+            $output->writeln('  php-ini-scanner -d [-i /path/to/php.ini]  <comment># Scan for development standards</comment>');
+            $output->writeln('  php-ini-scanner -p [-i /path/to/php.ini]  <comment># Scan for production standards</comment>');
+            $output->writeln('');
+            $output->writeln('<info>Options:</info>');
+            $output->writeln('  -d, --development     Check against Development standards');
+            $output->writeln('  -p, --production      Check against Production standards');
+            $output->writeln('  -i, --ini-path        Path to the php.ini file (defaults to system php.ini)');
+            $output->writeln('');
+            $output->writeln('<info>Examples:</info>');
+            $output->writeln('  php-ini-scanner -d');
+            $output->writeln('  php-ini-scanner -p -i /etc/php/8.2/apache2/php.ini');
+            $output->writeln('');
             return Command::FAILURE;
         }
 

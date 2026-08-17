@@ -77,6 +77,7 @@ final class ScanCommandTest extends TestCase
         $application = new Application();
         $application->add(new ScanCommand());
         $application->setAutoExit(false);
+
         $input = new ArrayInput([
             'command' => 'scan',
             '-i' => $this->tempIni,
@@ -100,6 +101,7 @@ final class ScanCommandTest extends TestCase
         $application = new Application();
         $application->add(new ScanCommand());
         $application->setAutoExit(false);
+
         $input = new ArrayInput([
             'command' => 'scan',
             '-p' => true,

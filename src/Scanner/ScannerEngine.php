@@ -60,14 +60,10 @@ final class ScannerEngine
      */
     private function normalizeValue(string $value): string
     {
-        if (in_array($value, ['off', '0', 'false', 'no'], true)) {
-            return 'off';
-        }
-
-        if (in_array($value, ['on', '1', 'true', 'yes'], true)) {
-            return 'on';
-        }
-
-        return strtolower($value);
+        return match (strtolower($value)) {
+            'off', '0', 'false', 'no' => 'off',
+            'on', '1', 'true', 'yes' => 'on',
+            default => strtolower($value),
+        };
     }
 }
