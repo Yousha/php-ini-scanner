@@ -128,7 +128,7 @@ final class ScannerEngine
     private function parseErrorReportingMask(string $expression): ?int
     {
         $parts = preg_split('/\s*&\s*/', trim($expression));
-        if ($parts === false || $parts === []) {
+        if ($parts === []) {
             return null;
         }
 
