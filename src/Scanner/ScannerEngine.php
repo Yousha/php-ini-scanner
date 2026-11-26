@@ -22,7 +22,18 @@ final class ScannerEngine
             throw new \RuntimeException("Cannot read INI file: {$filePath}");
         }
 
-        $parsedConfigs = parse_ini_file($filePath, true, INI_SCANNER_RAW);
+        // parse_ini_file() emits E_WARNING for malformed INI input. Handle
+        // that warning here so callers receive a predictable exception.
+        set_error_handler(static function (int $severity): bool {
+            return $severity === E_WARNING;
+        });
+
+        try {
+            $parsedConfigs = parse_ini_file($filePath, true, INI_SCANNER_RAW);
+        } finally {
+            restore_error_handler();
+        }
+
         if ($parsedConfigs === false) {
             throw new \RuntimeException("Failed to parse INI file: {$filePath}");
         }
