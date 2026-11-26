@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Yousha\\PhpIniScanner\\Tests;
+namespace Yousha\PhpIniScanner\Tests;
 
-use PHPUnit\\Framework\\TestCase;
-use Yousha\\PhpIniScanner\\Commands\\ScanCommand;
+use PHPUnit\Framework\TestCase;
+use Yousha\PhpIniScanner\Commands\ScanCommand;
 
 final class SmokeTest extends TestCase
 {
