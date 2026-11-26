@@ -38,58 +38,31 @@ For a global installation, make sure Composer's global vendor `bin` directory is
 
 ## Usage
 
-Exactly one environment option is required: `-p` (`--production`) or `-d` (`--development`).
-
 ### Scan for Production
-
-Scan a specific configuration file:
-
-```bash
-php ./vendor/bin/php-ini-scanner scan -p -i /path/to/php.ini
-```
-
-When the file belongs to a different PHP installation, specify the target version. Version-specific rules accept `MAJOR.MINOR` or `MAJOR.MINOR.PATCH`:
-
-```bash
-php ./vendor/bin/php-ini-scanner scan -p -i /path/to/php.ini --php-version=8.3.0
-```
-
-On Windows:
-
-```powershell
-php .\\vendor\\bin\\php-ini-scanner scan -p -i "C:\\Programs\\PHP\\php.ini" --php-version=8.3
-```
 
 To scan the automatically loaded configuration for the current PHP runtime:
 
 ```bash
 php ./vendor/bin/php-ini-scanner scan -p
 ```
+Or scan a specific configuration file:
+
+```bash
+php ./vendor/bin/php-ini-scanner scan -p -i /path/to/php.ini
+```
 
 ### Scan for Development
-
-Scan a specific configuration file:
-
-```bash
-php ./vendor/bin/php-ini-scanner scan -d -i /path/to/php.ini
-```
-
-You can also specify the PHP version whose version-specific rules should be used:
-
-```bash
-php ./vendor/bin/php-ini-scanner scan -d -i /path/to/php.ini --php-version=8.3
-```
-
-On Windows:
-
-```powershell
-php .\\vendor\\bin\\php-ini-scanner scan -d -i "C:\\Programs\\PHP\\php.ini"
-```
 
 To scan the automatically loaded configuration for the current PHP runtime:
 
 ```bash
 php ./vendor/bin/php-ini-scanner scan -d
+```
+
+Scan a specific configuration file:
+
+```bash
+php ./vendor/bin/php-ini-scanner scan -d -i /path/to/php.ini
 ```
 
 For a global Composer installation, run `php-ini-scanner` instead of `php ./vendor/bin/php-ini-scanner`.
@@ -101,7 +74,7 @@ For a global Composer installation, run `php-ini-scanner` instead of `php ./vend
 | `--production` | `-p` | Use the production rule set. Exactly one of `-p` or `-d` is required. |
 | `--development` | `-d` | Use the development rule set. Exactly one of `-d` or `-p` is required. |
 | `--ini-path` | `-i` | Path to the `php.ini` file. If omitted, the scanner uses the configuration loaded by the current PHP runtime. |
-| `--php-version` | | Target PHP version used to select version-specific rules. Accepts `MAJOR.MINOR` or `MAJOR.MINOR.PATCH`; defaults to the PHP version running the scanner. |
+| `--php-version` | | Target PHP version used to select version-specific rules. Accepts `MAJOR.MINOR` or `MAJOR.MINOR.PATCH`; |
 
 ## Exit codes
 
