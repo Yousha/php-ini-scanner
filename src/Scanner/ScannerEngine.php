@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Yousha\\PhpIniScanner\\Scanner;
+namespace Yousha\PhpIniScanner\Scanner;
 
-use Yousha\\PhpIniScanner\\Contracts\\RuleSetInterface;
+use Yousha\PhpIniScanner\Contracts\RuleSetInterface;
 
 final class ScannerEngine
 {
@@ -18,12 +18,12 @@ final class ScannerEngine
     public function scanFile(string $filePath, RuleSetInterface $standardRuleSet): array
     {
         if (!is_file($filePath) || !is_readable($filePath)) {
-            throw new \\RuntimeException("Cannot read INI file: {$filePath}");
+            throw new \RuntimeException("Cannot read INI file: {$filePath}");
         }
 
         $parsedConfigs = parse_ini_file($filePath, true, INI_SCANNER_RAW);
         if ($parsedConfigs === false) {
-            throw new \\RuntimeException("Failed to parse INI file: {$filePath}");
+            throw new \RuntimeException("Failed to parse INI file: {$filePath}");
         }
 
         // PHP treats ordinary section headers as organizational only. Their
@@ -32,7 +32,7 @@ final class ScannerEngine
         $phpConfigs = [];
         foreach ($parsedConfigs as $section => $values) {
             if (is_array($values)) {
-                if (preg_match('/^(?:PATH|HOST)\\s*=/i', (string) $section) === 1) {
+                if (preg_match('/^(?:PATH|HOST)\s*=/i', (string) $section) === 1) {
                     continue;
                 }
 
@@ -50,7 +50,7 @@ final class ScannerEngine
 
         $standardRules = $standardRuleSet->getRules();
         if ($standardRules === []) {
-            throw new \\RuntimeException('The supplied rule set contains no rules.');
+            throw new \RuntimeException('The supplied rule set contains no rules.');
         }
 
         $results = [];
@@ -115,7 +115,7 @@ final class ScannerEngine
      */
     private function parseErrorReportingMask(string $expression): ?int
     {
-        $parts = preg_split('/\\s*&\\s*/', trim($expression));
+        $parts = preg_split('/\s*&\s*/', trim($expression));
         if ($parts === false || $parts === []) {
             return null;
         }
