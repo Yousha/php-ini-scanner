@@ -35,7 +35,7 @@ final class ScanCommandTest extends TestCase
     {
         // Arrange
         // Act
-        list($statusCode, $content) = $this->runCommand(['command' => 'scan', '-i' => $this->tempIni]);
+        [$statusCode, $content] = $this->runCommand(['command' => 'scan', '-i' => $this->tempIni]);
 
         // Assert
         self::assertSame(1, $statusCode);
@@ -47,7 +47,7 @@ final class ScanCommandTest extends TestCase
     {
         // Arrange
         // Act
-        list($statusCode, $content) = $this->runCommand([
+        [$statusCode, $content] = $this->runCommand([
             'command' => 'scan',
             '-d' => true,
             '-p' => true,
@@ -64,7 +64,7 @@ final class ScanCommandTest extends TestCase
     {
         // Arrange
         // Act
-        list($statusCode, $content) = $this->runCommand([
+        [$statusCode, $content] = $this->runCommand([
             'command' => 'scan',
             '-p' => true,
             '-i' => $this->tempIni,
@@ -81,7 +81,7 @@ final class ScanCommandTest extends TestCase
     {
         // Arrange
         // Act
-        list($statusCode, $content) = $this->runCommand([
+        [$statusCode, $content] = $this->runCommand([
             'command' => 'scan',
             '-p' => true,
             '-i' => $this->tempIni,
@@ -98,7 +98,7 @@ final class ScanCommandTest extends TestCase
     {
         // Arrange
         // Act
-        list($statusCode, $content) = $this->runCommand([
+        [$statusCode, $content] = $this->runCommand([
             'command' => 'scan',
             '-p' => true,
             '-i' => sys_get_temp_dir(),
