@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Yousha\\PhpIniScanner\\Tests\\Output;
+namespace Yousha\PhpIniScanner\Tests\Output;
 
-use PHPUnit\\Framework\\TestCase;
-use Symfony\\Component\\Console\\Output\\BufferedOutput;
-use Yousha\\PhpIniScanner\\Output\\ConsoleRenderer;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Output\BufferedOutput;
+use Yousha\PhpIniScanner\Output\ConsoleRenderer;
 
 final class ConsoleRendererTest extends TestCase
 {
