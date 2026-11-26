@@ -56,11 +56,11 @@ final class ScannerEngineTest extends TestCase
     public function testComparesEquivalentErrorReportingBitmasks(): void
     {
         // Arrange
-        file_put_contents($this->tempIni, 'error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT');
+        file_put_contents($this->tempIni, 'error_reporting = E_ALL & ~E_DEPRECATED');
 
         // Act
         $results = $this->engine->scanFile($this->tempIni, $this->rules([
-            'error_reporting' => 'E_ALL & ~E_DEPRECATED & ~E_STRICT',
+            'error_reporting' => 'E_ALL & ~E_DEPRECATED',
         ]));
 
         // Assert
