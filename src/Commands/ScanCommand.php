@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Yousha\\PhpIniScanner\\Commands;
+namespace Yousha\PhpIniScanner\Commands;
 
 use Throwable;
-use Yousha\\PhpIniScanner\\Config\\DevelopmentRules;
-use Yousha\\PhpIniScanner\\Config\\ProductionRules;
-use Yousha\\PhpIniScanner\\Output\\ConsoleRenderer;
-use Yousha\\PhpIniScanner\\Scanner\\ScannerEngine;
-use Symfony\\Component\\Console\\Command\\Command;
-use Symfony\\Component\\Console\\Input\\InputInterface;
-use Symfony\\Component\\Console\\Input\\InputOption;
-use Symfony\\Component\\Console\\Output\\ConsoleOutputInterface;
-use Symfony\\Component\\Console\\Output\\OutputInterface;
+use Yousha\PhpIniScanner\Config\DevelopmentRules;
+use Yousha\PhpIniScanner\Config\ProductionRules;
+use Yousha\PhpIniScanner\Output\ConsoleRenderer;
+use Yousha\PhpIniScanner\Scanner\ScannerEngine;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 final class ScanCommand extends Command
 {
