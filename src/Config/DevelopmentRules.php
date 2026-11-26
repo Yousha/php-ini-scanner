@@ -48,6 +48,7 @@ final class DevelopmentRules implements RuleSetInterface
             'enable_dl' => 'Off',
             'date.timezone' => 'UTC',
             'default_mimetype' => 'text/html',
+            'zend.assertions' => '1',
         ];
 
         if (PHP_VERSION_ID >= 80000) {
@@ -59,14 +60,12 @@ final class DevelopmentRules implements RuleSetInterface
             $rules['error_log_mode'] = '0600';
         }
 
-        if (PHP_VERSION_ID < 80500) {
-            $rules['report_memleaks'] = 'On';
+        if (PHP_VERSION_ID < 80400) {
+            $rules['session.sid_length'] = '48';
         }
 
-        if (PHP_VERSION_ID >= 80300) {
-            $rules['zend.assertions'] = '1';
-        } else {
-            $rules['assert.active'] = 'On';
+        if (PHP_VERSION_ID < 80500) {
+            $rules['report_memleaks'] = 'On';
         }
 
         return $rules;
