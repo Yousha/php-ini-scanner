@@ -120,6 +120,24 @@ final class ScanCommandTest extends TestCase
         self::assertStringContainsString('Failed: 0', $content);
     }
 
+    /** Tests scanner exceptions are reported as command failures. */
+    public function testCommandReportsScannerFailure(): void
+    {
+        // Arrange
+        file_put_contents($this->tempIni, "display_errors = \"unterminated\\n");
+
+        // Act
+        [$statusCode, $content] = $this->runCommand([
+            'command' => 'scan',
+            '-p' => true,
+            '-i' => $this->tempIni,
+        ]);
+
+        // Assert
+        self::assertSame(1, $statusCode);
+        self::assertStringContainsString('Error:', $content);
+    }
+
     /** Tests command rejects invalid target php version. */
     public function testCommandRejectsInvalidTargetPhpVersion(): void
     {
