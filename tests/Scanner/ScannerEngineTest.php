@@ -120,38 +120,41 @@ final class ScannerEngineTest extends TestCase
         self::assertSame('[NOT SET]', $this->resultFor($results, 'allow_url_fopen')['current']);
     }
 
-    /** Tests session.sid_length is included only before PHP 8.4. */
-    public function testSessionSidLengthIsAvailableOnlyBeforePhp84(): void
+    /** Tests both rule sets use a session SID length of 32 across PHP versions. */
+    public function testSessionSidLengthIs32ForDevelopmentAndProduction(): void
     {
         // Arrange
-        $beforePhp84 = [70400, 80000, 80399];
-        $php84AndLater = [80400, 80401, 80500];
+        $phpVersions = [70400, 80000, 80399, 80400, 80401, 80500];
 
         // Act
-        $rulesBeforePhp84 = [];
-        foreach ($beforePhp84 as $phpVersionId) {
-            $rulesBeforePhp84[] = [
-                (new DevelopmentRules($phpVersionId))->getRules(),
-                (new ProductionRules($phpVersionId))->getRules(),
-            ];
-        }
-        $rulesPhp84AndLater = [];
-        foreach ($php84AndLater as $phpVersionId) {
-            $rulesPhp84AndLater[] = [
+        $ruleSets = [];
+        foreach ($phpVersions as $phpVersionId) {
+            $ruleSets[] = [
                 (new DevelopmentRules($phpVersionId))->getRules(),
                 (new ProductionRules($phpVersionId))->getRules(),
             ];
         }
 
         // Assert
-        foreach ($rulesBeforePhp84 as $rules) {
-            self::assertArrayHasKey('session.sid_length', $rules[0]);
-            self::assertArrayHasKey('session.sid_length', $rules[1]);
+        foreach ($ruleSets as $rules) {
+            self::assertSame('32', $rules[0]['session.sid_length']);
+            self::assertSame('32', $rules[1]['session.sid_length']);
         }
-        foreach ($rulesPhp84AndLater as $rules) {
-            self::assertArrayNotHasKey('session.sid_length', $rules[0]);
-            self::assertArrayNotHasKey('session.sid_length', $rules[1]);
-        }
+    }
+
+    /** Tests development memory and URL fopen recommendations. */
+    public function testDevelopmentMemoryLimitAndUrlFopenAreConfiguredAsRequested(): void
+    {
+        // Arrange
+        $rules = (new DevelopmentRules(80400))->getRules();
+
+        // Act
+        $memoryLimit = $rules['memory_limit'];
+        $allowUrlFopen = $rules['allow_url_fopen'];
+
+        // Assert
+        self::assertSame('512M', $memoryLimit);
+        self::assertSame('Off', $allowUrlFopen);
     }
 
     /** Tests JIT rules do not require or recommend a JIT buffer. */
