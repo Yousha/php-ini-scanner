@@ -124,7 +124,7 @@ final class ScanCommandTest extends TestCase
     public function testCommandReportsScannerFailure(): void
     {
         // Arrange
-        file_put_contents($this->tempIni, "display_errors = \"unterminated\\n");
+        file_put_contents($this->tempIni, "display_errors = \"unterminated\n");
 
         // Act
         [$statusCode, $content] = $this->runCommand([
