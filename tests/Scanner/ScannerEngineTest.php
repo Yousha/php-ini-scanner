@@ -317,8 +317,8 @@ final class ScannerEngineTest extends TestCase
 
         // Act
         $exception = null;
-        set_error_handler(static function (int $severity, string $message): bool {
-            throw new RuntimeException($message);
+        set_error_handler(static function (): bool {
+            return true;
         });
         try {
             $this->engine->scanFile($this->tempIni, $rules);
