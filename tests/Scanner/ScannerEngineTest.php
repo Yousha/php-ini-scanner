@@ -193,8 +193,8 @@ final class ScannerEngineTest extends TestCase
         $productionRules = (new ProductionRules($productionVersion))->getRules();
 
         // Assert
-        self::assertArrayNotHasKey('session.sid_length', $developmentRules);
-        self::assertArrayNotHasKey('session.sid_length', $productionRules);
+        self::assertSame('32', $developmentRules['session.sid_length']);
+        self::assertSame('32', $productionRules['session.sid_length']);
         self::assertArrayNotHasKey('report_memleaks', $productionRules);
     }
 
