@@ -2,9 +2,9 @@
 
 A lightweight CLI tool to audit php.ini configurations against development and production standards.
 
-[![current version](https://img.shields.io/packagist/v/yousha/php-ini-scanner.svg)](https://packagist.org/packages/yousha/php-ini-scanner) 
-[![Dependabot Updates](https://github.com/Yousha/php-ini-scanner/actions/workflows/dependabot/dependabot-updates/badge.svg?branch=main)](https://github.com/Yousha/php-ini-scanner/actions/workflows/dependabot/dependabot-updates) 
- [![PHP](https://img.shields.io/badge/PHP-7.4-617CBE)](https://php.net/) [![PHP](https://img.shields.io/badge/PHP-8.5-617CBE)](https://php.net/) [![issues](https://img.shields.io/github/issues/yousha/php-ini-scanner)](https://github.com/yousha/php-ini-scanner/issues) ![repo size](https://img.shields.io/github/repo-size/yousha/php-ini-scanner) [![GitHub license](https://img.shields.io/github/license/yousha/php-ini-scanner)](LICENSE)
+[![current version](https://img.shields.io/packagist/v/yousha/php-ini-scanner.svg)](https://packagist.org/packages/yousha/php-ini-scanner)
+[![Dependabot Updates](https://github.com/Yousha/php-ini-scanner/actions/workflows/dependabot/dependabot-updates/badge.svg?branch=main)](https://github.com/Yousha/php-ini-scanner/actions/workflows/dependabot/dependabot-updates)
+[![PHP](https://img.shields.io/badge/PHP-7.4-617CBE)](https://php.net/) [![PHP](https://img.shields.io/badge/PHP-8.5-617CBE)](https://php.net/) [![issues](https://img.shields.io/github/issues/yousha/php-ini-scanner)](https://github.com/yousha/php-ini-scanner/issues) ![repo size](https://img.shields.io/github/repo-size/yousha/php-ini-scanner) [![GitHub license](https://img.shields.io/github/license/yousha/php-ini-scanner)](LICENSE)
 
 It compares given settings against industry-standard recommendations for either **Development** or **Production** environments.
 
@@ -41,21 +41,18 @@ Checks for production environment settings. When scanning a configuration belong
 
 ```bash
 php ./vendor/bin/php-ini-scanner scan -p -i /path/to/php.ini --php-version=8.3
-
 ```
 
 Or for Windows paths:
 
 ```bash
-php ./vendor/bin/php-ini-scanner scan -p -i "C:\Programs\PHP\php.ini"
-
+php ./vendor/bin/php-ini-scanner scan -p -i "C:\\Programs\\PHP\\php.ini"
 ```
 
 Or auto-scan current installed PHP:
 
 ```bash
 php ./vendor/bin/php-ini-scanner scan -p
-
 ```
 
 ### Scan for Development
@@ -64,20 +61,18 @@ Checks for debugging-friendly settings:
 
 ```bash
 php ./vendor/bin/php-ini-scanner scan -d -i /path/to/php.ini
-
 ```
 
 Or for Windows paths:
 
 ```bash
-php ./vendor/bin/php-ini-scanner scan -d -i "C:\Programs\PHP\php.ini"
+php ./vendor/bin/php-ini-scanner scan -d -i "C:\\Programs\\PHP\\php.ini"
 ```
 
 Or auto-scan current installed PHP:
 
 ```bash
 php ./vendor/bin/php-ini-scanner scan -d
-
 ```
 
 ## Commands
@@ -88,6 +83,10 @@ php ./vendor/bin/php-ini-scanner scan -d
 | `--development` | `-d` | Uses development rule set. |
 | `--ini-path` | `-i` | Path to `php.ini` file. |
 | `--php-version` | | Target PHP version used to select version-specific rules (for example `8.3`). Defaults to the PHP version running the scanner. |
+
+## Scan limitations
+
+The scanner performs a static comparison against the single INI file supplied with `--ini-path`. It does not calculate the effective configuration used by a running PHP process. In particular, it cannot account for PHP-FPM pool overrides, additional `conf.d` files, per-directory `.user.ini` files, or runtime changes made with `ini_set()`. When scanning the automatically loaded `php.ini`, additional scanned INI files are reported as a limitation and are not merged into the results. Treat the output as a file-level review, not proof of the effective configuration for CLI, FPM, or another SAPI.
 
 ## License
 
