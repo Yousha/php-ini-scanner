@@ -8,6 +8,7 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/** Formats configuration scan results for console output. */
 final class ConsoleRenderer
 {
     /**
