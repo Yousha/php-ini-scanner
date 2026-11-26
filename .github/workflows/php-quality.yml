@@ -54,6 +54,12 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
+      - name: Check PHP syntax
+        run: composer lint
+
+      - name: Check PHP formatting
+        run: composer format-check
+
       - name: Run tests and generate coverage
         run: composer test-coverage
 
