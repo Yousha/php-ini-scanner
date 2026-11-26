@@ -254,6 +254,84 @@ final class ScannerEngineTest extends TestCase
         self::assertInstanceOf(RuntimeException::class, $exception);
     }
 
+
+    /** Tests INI array directives are not treated as scalar configuration values. */
+    public function testIgnoresArrayValuedDirectives(): void
+    {
+        // Arrange
+        file_put_contents($this->tempIni, "extension[] = first\\nextension[] = second\\n");
+
+        // Act
+        $results = $this->engine->scanFile($this->tempIni, $this->rules([
+            'extension' => 'first',
+        ]));
+
+        // Assert
+        self::assertSame('[NOT SET]', $results[0]['current']);
+        self::assertFalse($results[0]['pass']);
+    }
+
+    /** Tests boolean aliases and case normalization. */
+    public function testNormalizesAllBooleanAliases(): void
+    {
+        // Arrange
+        file_put_contents($this->tempIni, "first = FALSE\\nsecond = yes\\nthird = No\\nfourth = TRUE\\n");
+
+        // Act
+        $results = $this->engine->scanFile($this->tempIni, $this->rules([
+            'first' => 'Off',
+            'second' => 'On',
+            'third' => 'Off',
+            'fourth' => 'On',
+        ]));
+
+        // Assert
+        foreach ($results as $result) {
+            self::assertTrue($result['pass'], $result['setting']);
+        }
+    }
+
+    /** Tests error reporting expressions fall back safely for unknown constants. */
+    public function testPreservesUnknownErrorReportingExpressions(): void
+    {
+        // Arrange
+        $expression = 'E_ALL & UNKNOWN_FLAG';
+        file_put_contents($this->tempIni, 'error_reporting = "' . $expression . '"');
+
+        // Act
+        $results = $this->engine->scanFile($this->tempIni, $this->rules([
+            'error_reporting' => $expression,
+        ]));
+
+        // Assert
+        self::assertSame(strtolower($expression), $results[0]['current']);
+        self::assertTrue($results[0]['pass']);
+    }
+
+    /** Tests malformed INI files are rejected. */
+    public function testRejectsMalformedIniFiles(): void
+    {
+        // Arrange
+        file_put_contents($this->tempIni, "display_errors = \"unterminated\\n");
+        $rules = $this->rules(['display_errors' => 'Off']);
+
+        // Act
+        $exception = null;
+        set_error_handler(static function (int $severity, string $message): bool {
+            throw new RuntimeException($message);
+        });
+        try {
+            $this->engine->scanFile($this->tempIni, $rules);
+        } catch (RuntimeException $caught) {
+            $exception = $caught;
+        } finally {
+            restore_error_handler();
+        }
+
+        // Assert
+        self::assertInstanceOf(RuntimeException::class, $exception);
+    }
+
     /**
      * Creates an in-memory rule set for scanner tests.
      *
