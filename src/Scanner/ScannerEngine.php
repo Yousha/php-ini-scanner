@@ -21,10 +21,14 @@ final class ScannerEngine
             throw new \\RuntimeException("Cannot read INI file: {$filePath}");
         }
 
-        $phpConfigs = parse_ini_file($filePath, false, INI_SCANNER_RAW);
-        if ($phpConfigs === false) {
+        $parsedConfigs = parse_ini_file($filePath, true, INI_SCANNER_RAW);
+        if ($parsedConfigs === false) {
             throw new \\RuntimeException("Failed to parse INI file: {$filePath}");
         }
+
+        // Only global directives belong to the base configuration; PATH/HOST sections
+        // are conditional overrides and must not be mistaken for global settings.
+        $phpConfigs = array_filter($parsedConfigs, 'is_scalar');
 
         $standardRules = $standardRuleSet->getRules();
         if ($standardRules === []) {
