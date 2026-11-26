@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Yousha\\PhpIniScanner\\Tests\\Scanner;
+namespace Yousha\PhpIniScanner\Tests\Scanner;
 
-use PHPUnit\\Framework\\TestCase;
+use PHPUnit\Framework\TestCase;
 use RuntimeException;
-use Yousha\\PhpIniScanner\\Config\\DevelopmentRules;
-use Yousha\\PhpIniScanner\\Config\\ProductionRules;
-use Yousha\\PhpIniScanner\\Contracts\\RuleSetInterface;
-use Yousha\\PhpIniScanner\\Scanner\\ScannerEngine;
+use Yousha\PhpIniScanner\Config\DevelopmentRules;
+use Yousha\PhpIniScanner\Config\ProductionRules;
+use Yousha\PhpIniScanner\Contracts\RuleSetInterface;
+use Yousha\PhpIniScanner\Scanner\ScannerEngine;
 
 final class ScannerEngineTest extends TestCase
 {
@@ -32,7 +32,7 @@ final class ScannerEngineTest extends TestCase
 
     public function testNormalizesBooleanValuesAndQuotedStrings(): void
     {
-        file_put_contents($this->tempIni, "display_errors = 0\\ndefault_mimetype = \\"text/html\\"\\n");
+        file_put_contents($this->tempIni, "display_errors = 0\ndefault_mimetype = \"text/html\"\n");
 
         $results = $this->engine->scanFile($this->tempIni, $this->rules([
             'display_errors' => 'Off',
@@ -58,7 +58,7 @@ final class ScannerEngineTest extends TestCase
 
     public function testReportsMissingValuesWithoutEmbeddingConsoleMarkup(): void
     {
-        file_put_contents($this->tempIni, "unrelated = value\\n");
+        file_put_contents($this->tempIni, "unrelated = value\n");
 
         $results = $this->engine->scanFile($this->tempIni, $this->rules(['display_errors' => 'Off']));
 
@@ -68,7 +68,7 @@ final class ScannerEngineTest extends TestCase
 
     public function testAcceptsAnEmptyOrCommentOnlyIniFileAndReportsUnsetRules(): void
     {
-        file_put_contents($this->tempIni, "; intentionally empty\\n");
+        file_put_contents($this->tempIni, "; intentionally empty\n");
 
         $results = $this->engine->scanFile($this->tempIni, $this->rules(['display_errors' => 'Off']));
 
@@ -121,7 +121,7 @@ final class ScannerEngineTest extends TestCase
 
     public function testRejectsAnEmptyRuleSet(): void
     {
-        file_put_contents($this->tempIni, "display_errors = Off\\n");
+        file_put_contents($this->tempIni, "display_errors = Off\n");
 
         $this->expectException(RuntimeException::class);
         $this->engine->scanFile($this->tempIni, $this->rules([]));
