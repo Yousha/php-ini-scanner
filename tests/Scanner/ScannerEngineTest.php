@@ -6,6 +6,8 @@ namespace Yousha\PhpIniScanner\Tests\Scanner;
 
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use Yousha\PhpIniScanner\Config\DevelopmentRules;
+use Yousha\PhpIniScanner\Config\ProductionRules;
 use Yousha\PhpIniScanner\Contracts\RuleSetInterface;
 use Yousha\PhpIniScanner\Scanner\ScannerEngine;
 
@@ -73,6 +75,16 @@ final class ScannerEngineTest extends TestCase
         self::assertCount(1, $results);
         self::assertSame('[NOT SET]', $results[0]['current']);
         self::assertFalse($results[0]['pass']);
+    }
+
+    public function testRuleSetsUseTheSpecifiedTargetPhpVersion(): void
+    {
+        $developmentRules = new DevelopmentRules(80400);
+        $productionRules = new ProductionRules(80500);
+
+        self::assertArrayNotHasKey('session.sid_length', $developmentRules->getRules());
+        self::assertArrayNotHasKey('session.sid_length', $productionRules->getRules());
+        self::assertArrayNotHasKey('report_memleaks', $productionRules->getRules());
     }
 
     public function testRejectsAnEmptyRuleSet(): void
