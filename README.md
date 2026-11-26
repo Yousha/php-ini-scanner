@@ -86,7 +86,8 @@ php ./vendor/bin/php-ini-scanner scan -d
 | --- | --- | --- |
 | `--production` | `-p` | Uses production rule set. |
 | `--development` | `-d` | Uses development rule set. |
-| `--ini-path` | `-i` | Path to `php.ini` file. |\n| `--php-version` | | Target PHP version used to select version-specific rules (for example `8.3`). Defaults to the PHP version running the scanner. |
+| `--ini-path` | `-i` | Path to `php.ini` file. |
+| `--php-version` | | Target PHP version used to select version-specific rules (for example `8.3`). Defaults to the PHP version running the scanner. |
 
 ## License
 
