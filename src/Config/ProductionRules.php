@@ -61,6 +61,7 @@ final class ProductionRules implements RuleSetInterface
         ];
 
         if ($this->phpVersionId >= 80000) {
+            $rules['opcache.jit'] = 'disable';
             $rules['opcache.record_warnings'] = 'On';
             $rules['zend.exception_string_param_max_len'] = '0';
         }
