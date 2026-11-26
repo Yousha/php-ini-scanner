@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Yousha\\PhpIniScanner\\Tests\\Config;
+namespace Yousha\PhpIniScanner\Tests\Config;
 
-use PHPUnit\\Framework\\TestCase;
-use Yousha\\PhpIniScanner\\Config\\DevelopmentRules;
-use Yousha\\PhpIniScanner\\Config\\ProductionRules;
+use PHPUnit\Framework\TestCase;
+use Yousha\PhpIniScanner\Config\DevelopmentRules;
+use Yousha\PhpIniScanner\Config\ProductionRules;
 
 /** Tests development and production PHP configuration rule sets. */
 final class RuleSetsTest extends TestCase
