@@ -75,9 +75,7 @@ final class ProductionRules implements RuleSetInterface
             $rules['error_log_mode'] = '0600';
         }
 
-        if ($this->phpVersionId < 80400) {
-            $rules['session.sid_length'] = '32';
-        }
+        $rules['session.sid_length'] = '32';
 
         if ($this->phpVersionId < 80500) {
             $rules['report_memleaks'] = 'On';
