@@ -155,8 +155,8 @@ final class ScanCommandTest extends TestCase
         $application = new Application();
         $application->add(new ScanCommand());
         $application->setAutoExit(false);
-        $output = new \\Symfony\\Component\\Console\\Output\\ConsoleOutput(
-            \\Symfony\\Component\\Console\\Output\\OutputInterface::VERBOSITY_QUIET
+        $output = new \Symfony\Component\Console\Output\ConsoleOutput(
+            \Symfony\Component\Console\Output\OutputInterface::VERBOSITY_QUIET
         );
 
         // Act
