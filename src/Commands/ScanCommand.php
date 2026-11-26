@@ -35,7 +35,8 @@ final class ScanCommand extends Command
         $this->setDescription('Scans a php.ini file for development or production standards.')
             ->addOption('development', 'd', InputOption::VALUE_NONE, 'Check against Development standards.')
             ->addOption('production', 'p', InputOption::VALUE_NONE, 'Check against Production standards.')
-            ->addOption('ini-path', 'i', InputOption::VALUE_REQUIRED, 'Path to the php.ini file to scan.');
+            ->addOption('ini-path', 'i', InputOption::VALUE_REQUIRED, 'Path to the php.ini file to scan.')
+            ->addOption('php-version', null, InputOption::VALUE_REQUIRED, 'Target PHP version (for example 8.3).');
     }
 
     /** Executes the configuration scan. */
@@ -51,6 +52,18 @@ final class ScanCommand extends Command
         }
 
         $phpIniPath = $input->getOption('ini-path');
+        $targetPhpVersion = $input->getOption('php-version');
+        $targetPhpVersionId = PHP_VERSION_ID;
+        if ($targetPhpVersion !== null) {
+            if (!preg_match('/^(\\d+)\\.(\\d+)(?:\\.(\\d+))?$/', (string) $targetPhpVersion, $versionParts)) {
+                $errorOutput->writeln('<error>Error: --php-version must use MAJOR.MINOR or MAJOR.MINOR.PATCH format.</error>');
+                return Command::FAILURE;
+            }
+
+            $targetPhpVersionId = ((int) $versionParts[1] * 10000)
+                + ((int) $versionParts[2] * 100)
+                + (isset($versionParts[3]) ? (int) $versionParts[3] : 0);
+        }
         if (!$phpIniPath) {
             $phpIniPath = php_ini_loaded_file();
             if ($phpIniPath === false) {
@@ -70,7 +83,9 @@ final class ScanCommand extends Command
             return Command::FAILURE;
         }
 
-        $rules = $isProd ? new ProductionRules() : new DevelopmentRules();
+        $rules = $isProd
+            ? new ProductionRules($targetPhpVersionId)
+            : new DevelopmentRules($targetPhpVersionId);
 
         try {
             $results = $this->scanner->scanFile($phpIniPath, $rules);
