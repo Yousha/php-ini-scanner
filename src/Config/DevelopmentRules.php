@@ -8,6 +8,14 @@ use Yousha\PhpIniScanner\Contracts\RuleSetInterface;
 
 final class DevelopmentRules implements RuleSetInterface
 {
+    private int $phpVersionId;
+
+    /** Uses the supplied target PHP version, or the current runtime version by default. */
+    public function __construct(?int $phpVersionId = null)
+    {
+        $this->phpVersionId = $phpVersionId ?? PHP_VERSION_ID;
+    }
+
     /** Returns the rule set name. */
     public function getName(): string
     {
@@ -51,20 +59,20 @@ final class DevelopmentRules implements RuleSetInterface
             'zend.assertions' => '1',
         ];
 
-        if (PHP_VERSION_ID >= 80000) {
+        if ($this->phpVersionId >= 80000) {
             $rules['opcache.record_warnings'] = 'Off';
             $rules['zend.exception_string_param_max_len'] = '15';
         }
 
-        if (PHP_VERSION_ID >= 80200) {
+        if ($this->phpVersionId >= 80200) {
             $rules['error_log_mode'] = '0600';
         }
 
-        if (PHP_VERSION_ID < 80400) {
+        if ($this->phpVersionId < 80400) {
             $rules['session.sid_length'] = '48';
         }
 
-        if (PHP_VERSION_ID < 80500) {
+        if ($this->phpVersionId < 80500) {
             $rules['report_memleaks'] = 'On';
         }
 
