@@ -7,19 +7,21 @@ namespace Yousha\PhpIniScanner\Tests;
 use PHPUnit\Framework\TestCase;
 use Yousha\PhpIniScanner\Commands\ScanCommand;
 
-/** Tests smoke behavior. */
+/** Tests basic application bootstrapping. */
 final class SmokeTest extends TestCase
 {
-    /** Tests composer can load scan command. */
+    /** Tests Composer can autoload the scan command. */
     public function testComposerCanLoadScanCommand(): void
     {
         // Arrange
         // Act
+        $isLoaded = class_exists(ScanCommand::class);
+
         // Assert
-        self::assertTrue(class_exists(ScanCommand::class));
+        self::assertTrue($isLoaded);
     }
 
-    /** Tests scan command can be instantiated. */
+    /** Tests the scan command can be instantiated. */
     public function testScanCommandCanBeInstantiated(): void
     {
         // Arrange
