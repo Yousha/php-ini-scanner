@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Yousha\\PhpIniScanner\\Config;
+namespace Yousha\PhpIniScanner\Config;
 
-use Yousha\\PhpIniScanner\\Contracts\\RuleSetInterface;
+use Yousha\PhpIniScanner\Contracts\RuleSetInterface;
 
 final class ProductionRules implements RuleSetInterface
 {
