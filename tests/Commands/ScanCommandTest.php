@@ -2,13 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Yousha\PhpIniScanner\Tests\Commands;
+namespace Yousha\\PhpIniScanner\\Tests\\Commands;
 
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
-use Yousha\PhpIniScanner\Commands\ScanCommand;
+use PHPUnit\\Framework\\TestCase;
+use Symfony\\Component\\Console\\Application;
+use Symfony\\Component\\Console\\Input\\ArrayInput;
+use Symfony\\Component\\Console\\Output\\BufferedOutput;
+use Yousha\\PhpIniScanner\\Commands\\ScanCommand;
+use Yousha\\PhpIniScanner\\Config\\DevelopmentRules;
+use Yousha\\PhpIniScanner\\Config\\ProductionRules;
 
 /** Tests scan command behavior. */
 final class ScanCommandTest extends TestCase
@@ -19,7 +21,7 @@ final class ScanCommandTest extends TestCase
     protected function setUp(): void
     {
         $this->tempIni = tempnam(sys_get_temp_dir(), 'test_cli_');
-        file_put_contents($this->tempIni, "display_errors = Off\nlog_errors = On");
+        file_put_contents($this->tempIni, "display_errors = Off\\nlog_errors = On");
     }
 
     /** Cleans up test fixtures. */
@@ -76,6 +78,48 @@ final class ScanCommandTest extends TestCase
         self::assertStringContainsString('display_errors', $content);
     }
 
+    /** Tests command accepts a valid target PHP version and a passing development scan. */
+    public function testCommandCompletesDevelopmentScanForTargetPhpVersion(): void
+    {
+        // Arrange
+        $rules = (new DevelopmentRules(80400))->getRules();
+        $this->writeRules($rules);
+
+        // Act
+        [$statusCode, $content] = $this->runCommand([
+            'command' => 'scan',
+            '-d' => true,
+            '-i' => $this->tempIni,
+            '--php-version' => '8.4.0',
+        ]);
+
+        // Assert
+        self::assertSame(0, $statusCode);
+        self::assertStringContainsString('Development', $content);
+        self::assertStringContainsString('Failed: 0', $content);
+    }
+
+    /** Tests command accepts the short target PHP version format. */
+    public function testCommandAcceptsMajorAndMinorPhpVersion(): void
+    {
+        // Arrange
+        $rules = (new ProductionRules(80400))->getRules();
+        $this->writeRules($rules);
+
+        // Act
+        [$statusCode, $content] = $this->runCommand([
+            'command' => 'scan',
+            '-p' => true,
+            '-i' => $this->tempIni,
+            '--php-version' => '8.4',
+        ]);
+
+        // Assert
+        self::assertSame(0, $statusCode);
+        self::assertStringContainsString('Production', $content);
+        self::assertStringContainsString('Failed: 0', $content);
+    }
+
     /** Tests command rejects invalid target php version. */
     public function testCommandRejectsInvalidTargetPhpVersion(): void
     {
@@ -109,7 +153,18 @@ final class ScanCommandTest extends TestCase
         self::assertStringContainsString('readable INI file is required', $content);
     }
 
-    /** Performs the run command test helper operation. */
+    /** Writes a complete rule set to the temporary INI fixture. */
+    private function writeRules(array $rules): void
+    {
+        $lines = [];
+        foreach ($rules as $setting => $value) {
+            $lines[] = $setting . ' = ' . $value;
+        }
+
+        file_put_contents($this->tempIni, implode("\\n", $lines));
+    }
+
+    /** Runs the command and returns its status and output. */
     private function runCommand(array $arguments): array
     {
         $application = new Application();
