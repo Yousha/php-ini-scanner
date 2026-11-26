@@ -22,11 +22,28 @@ final class ScanCommand extends Command
 
     private ConsoleRenderer $renderer;
 
-    /** Initializes the scanner and renderer. */
-    public function __construct()
+    /** @var callable */
+    private $loadedIniFileResolver;
+
+    /** @var callable */
+    private $scannedIniFilesResolver;
+
+    /**
+     * Initializes the scanner, renderer, and PHP INI environment resolvers.
+     *
+     * @param callable|null $loadedIniFileResolver
+     * @param callable|null $scannedIniFilesResolver
+     */
+    public function __construct(?callable $loadedIniFileResolver = null, ?callable $scannedIniFilesResolver = null)
     {
         $this->scanner = new ScannerEngine();
         $this->renderer = new ConsoleRenderer();
+        $this->loadedIniFileResolver = $loadedIniFileResolver ?? static function () {
+            return php_ini_loaded_file();
+        };
+        $this->scannedIniFilesResolver = $scannedIniFilesResolver ?? static function () {
+            return php_ini_scanned_files();
+        };
         parent::__construct('scan');
     }
 
@@ -66,14 +83,14 @@ final class ScanCommand extends Command
                 + (isset($versionParts[3]) ? (int) $versionParts[3] : 0);
         }
         if (!$phpIniPath) {
-            $phpIniPath = php_ini_loaded_file();
+            $phpIniPath = ($this->loadedIniFileResolver)();
             if ($phpIniPath === false) {
                 $errorOutput->writeln('<error>Error: No php.ini is loaded. Specify --ini-path.</error>');
                 return Command::FAILURE;
             }
 
             $output->writeln('<comment>Using loaded PHP configuration: ' . $phpIniPath . '</comment>');
-            $additionalFiles = php_ini_scanned_files();
+            $additionalFiles = ($this->scannedIniFilesResolver)();
             if ($additionalFiles !== false && trim($additionalFiles) !== '') {
                 $errorOutput->writeln('<comment>Warning: Additional INI files are loaded by PHP but are not included in this single-file scan.</comment>');
             }
