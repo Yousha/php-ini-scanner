@@ -37,12 +37,13 @@ final class ScannerEngineTest extends TestCase
     public function testNormalizesBooleanValuesAndQuotedStrings(): void
     {
         // Arrange
-        file_put_contents($this->tempIni, "display_errors = 0\ndefault_mimetype = \"text/html\"\n");
+        file_put_contents($this->tempIni, "display_errors = 0\ndefault_mimetype = \"text/html\"\nsingle_quoted = 'text/html'\n");
 
         // Act
         $results = $this->engine->scanFile($this->tempIni, $this->rules([
             'display_errors' => 'Off',
             'default_mimetype' => 'text/html',
+            'single_quoted' => 'text/html',
         ]));
 
         // Assert
@@ -50,6 +51,8 @@ final class ScannerEngineTest extends TestCase
         self::assertTrue($this->resultFor($results, 'display_errors')['pass']);
         self::assertSame('text/html', $this->resultFor($results, 'default_mimetype')['current']);
         self::assertTrue($this->resultFor($results, 'default_mimetype')['pass']);
+        self::assertSame('text/html', $this->resultFor($results, 'single_quoted')['current']);
+        self::assertTrue($this->resultFor($results, 'single_quoted')['pass']);
     }
 
     /** Tests equivalent PHP error_reporting bitmask expressions. */
