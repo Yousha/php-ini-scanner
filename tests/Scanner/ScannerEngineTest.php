@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Yousha\\PhpIniScanner\\Tests\\Scanner;
+namespace Yousha\PhpIniScanner\Tests\Scanner;
 
-use PHPUnit\\Framework\\TestCase;
+use PHPUnit\Framework\TestCase;
 use RuntimeException;
-use Yousha\\PhpIniScanner\\Contracts\\RuleSetInterface;
-use Yousha\\PhpIniScanner\\Scanner\\ScannerEngine;
+use Yousha\PhpIniScanner\Contracts\RuleSetInterface;
+use Yousha\PhpIniScanner\Scanner\ScannerEngine;
 
 final class ScannerEngineTest extends TestCase
 {
