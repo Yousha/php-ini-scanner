@@ -315,7 +315,7 @@ final class ScannerEngineTest extends TestCase
     public function testRejectsMalformedIniFiles(): void
     {
         // Arrange
-        file_put_contents($this->tempIni, "display_errors = \"unterminated\n");
+        file_put_contents($this->tempIni, "[broken\n");
         $rules = $this->rules(['display_errors' => 'Off']);
 
         // Act
