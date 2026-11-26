@@ -11,21 +11,21 @@ use Yousha\PhpIniScanner\Config\ProductionRules;
 use Yousha\PhpIniScanner\Contracts\RuleSetInterface;
 use Yousha\PhpIniScanner\Scanner\ScannerEngine;
 
-/** Tests scanner engine behavior. */
+/** Tests scanner parsing, normalization, and validation behavior. */
 final class ScannerEngineTest extends TestCase
 {
     private string $tempIni;
 
     private ScannerEngine $engine;
 
-    /** Prepares test fixtures. */
+    /** Prepares temporary INI fixtures for each test. */
     protected function setUp(): void
     {
         $this->engine = new ScannerEngine();
         $this->tempIni = tempnam(sys_get_temp_dir(), 'php_ini_scanner_');
     }
 
-    /** Cleans up test fixtures. */
+    /** Removes temporary INI fixtures after each test. */
     protected function tearDown(): void
     {
         if (is_file($this->tempIni)) {
@@ -33,7 +33,7 @@ final class ScannerEngineTest extends TestCase
         }
     }
 
-    /** Tests normalizes boolean values and quoted strings. */
+    /** Tests normalization of boolean values and quoted strings. */
     public function testNormalizesBooleanValuesAndQuotedStrings(): void
     {
         // Arrange
@@ -52,7 +52,7 @@ final class ScannerEngineTest extends TestCase
         self::assertTrue($this->resultFor($results, 'default_mimetype')['pass']);
     }
 
-    /** Tests compares equivalent error reporting bitmasks. */
+    /** Tests equivalent PHP error_reporting bitmask expressions. */
     public function testComparesEquivalentErrorReportingBitmasks(): void
     {
         // Arrange
@@ -67,7 +67,7 @@ final class ScannerEngineTest extends TestCase
         self::assertTrue($this->resultFor($results, 'error_reporting')['pass']);
     }
 
-    /** Tests reports missing values without embedding console markup. */
+    /** Tests missing values are reported without console markup. */
     public function testReportsMissingValuesWithoutEmbeddingConsoleMarkup(): void
     {
         // Arrange
@@ -81,7 +81,7 @@ final class ScannerEngineTest extends TestCase
         self::assertFalse($results[0]['pass']);
     }
 
-    /** Tests accepts an empty or comment only ini file and reports unset rules. */
+    /** Tests empty and comment-only INI files report unset rules. */
     public function testAcceptsAnEmptyOrCommentOnlyIniFileAndReportsUnsetRules(): void
     {
         // Arrange
@@ -96,7 +96,7 @@ final class ScannerEngineTest extends TestCase
         self::assertFalse($results[0]['pass']);
     }
 
-    /** Tests reads directives from ordinary ini sections and ignores conditional sections. */
+    /** Tests ordinary INI sections are read and conditional sections are ignored. */
     public function testReadsDirectivesFromOrdinaryIniSectionsAndIgnoresConditionalSections(): void
     {
         // Arrange
@@ -112,114 +112,147 @@ final class ScannerEngineTest extends TestCase
             'allow_url_fopen' => 'On',
         ]));
 
-        foreach (['engine', 'short_open_tag', 'date.timezone', 'session.use_strict_mode'] as $setting) {
         // Assert
+        foreach (['engine', 'short_open_tag', 'date.timezone', 'session.use_strict_mode'] as $setting) {
             self::assertTrue($this->resultFor($results, $setting)['pass']);
         }
-
         self::assertSame('[NOT SET]', $this->resultFor($results, 'display_errors')['current']);
         self::assertSame('[NOT SET]', $this->resultFor($results, 'allow_url_fopen')['current']);
     }
 
-    /** Tests session sid length is available only before php84. */
+    /** Tests session.sid_length is included only before PHP 8.4. */
     public function testSessionSidLengthIsAvailableOnlyBeforePhp84(): void
     {
         // Arrange
-        foreach ([70400, 80000, 80399] as $phpVersionId) {
-        // Act
-            $developmentRules = new DevelopmentRules($phpVersionId);
-            $productionRules = new ProductionRules($phpVersionId);
+        $beforePhp84 = [70400, 80000, 80399];
+        $php84AndLater = [80400, 80401, 80500];
 
-        // Assert
-            self::assertArrayHasKey('session.sid_length', $developmentRules->getRules());
-            self::assertArrayHasKey('session.sid_length', $productionRules->getRules());
+        // Act
+        $rulesBeforePhp84 = [];
+        foreach ($beforePhp84 as $phpVersionId) {
+            $rulesBeforePhp84[] = [
+                (new DevelopmentRules($phpVersionId))->getRules(),
+                (new ProductionRules($phpVersionId))->getRules(),
+            ];
+        }
+        $rulesPhp84AndLater = [];
+        foreach ($php84AndLater as $phpVersionId) {
+            $rulesPhp84AndLater[] = [
+                (new DevelopmentRules($phpVersionId))->getRules(),
+                (new ProductionRules($phpVersionId))->getRules(),
+            ];
         }
 
-        foreach ([80400, 80401, 80500] as $phpVersionId) {
-            $developmentRules = new DevelopmentRules($phpVersionId);
-            $productionRules = new ProductionRules($phpVersionId);
-
-            self::assertArrayNotHasKey('session.sid_length', $developmentRules->getRules());
-            self::assertArrayNotHasKey('session.sid_length', $productionRules->getRules());
+        // Assert
+        foreach ($rulesBeforePhp84 as $rules) {
+            self::assertArrayHasKey('session.sid_length', $rules[0]);
+            self::assertArrayHasKey('session.sid_length', $rules[1]);
+        }
+        foreach ($rulesPhp84AndLater as $rules) {
+            self::assertArrayNotHasKey('session.sid_length', $rules[0]);
+            self::assertArrayNotHasKey('session.sid_length', $rules[1]);
         }
     }
 
-    /** Tests jit rules do not require or recommend ajit buffer. */
+    /** Tests JIT rules do not require or recommend a JIT buffer. */
     public function testJitRulesDoNotRequireOrRecommendAJitBuffer(): void
     {
         // Arrange
-        foreach ([80000, 80399, 80400, 80401, 80500] as $phpVersionId) {
+        $phpVersions = [80000, 80399, 80400, 80401, 80500];
+
         // Act
-            $developmentRules = new DevelopmentRules($phpVersionId);
-            $productionRules = new ProductionRules($phpVersionId);
+        $ruleSets = [];
+        foreach ($phpVersions as $phpVersionId) {
+            $ruleSets[] = [
+                (new DevelopmentRules($phpVersionId))->getRules(),
+                (new ProductionRules($phpVersionId))->getRules(),
+            ];
+        }
 
         // Assert
-            self::assertSame('disable', $developmentRules->getRules()['opcache.jit']);
-            self::assertSame('disable', $productionRules->getRules()['opcache.jit']);
-            self::assertArrayNotHasKey('opcache.jit_buffer_size', $developmentRules->getRules());
-            self::assertArrayNotHasKey('opcache.jit_buffer_size', $productionRules->getRules());
+        foreach ($ruleSets as $rules) {
+            self::assertSame('disable', $rules[0]['opcache.jit']);
+            self::assertSame('disable', $rules[1]['opcache.jit']);
+            self::assertArrayNotHasKey('opcache.jit_buffer_size', $rules[0]);
+            self::assertArrayNotHasKey('opcache.jit_buffer_size', $rules[1]);
         }
     }
 
-    /** Tests rule sets use the specified target php version. */
+    /** Tests rule sets honor the specified target PHP version. */
     public function testRuleSetsUseTheSpecifiedTargetPhpVersion(): void
     {
         // Arrange
+        $developmentVersion = 80400;
+        $productionVersion = 80500;
+
         // Act
-        $developmentRules = new DevelopmentRules(80400);
-        $productionRules = new ProductionRules(80500);
+        $developmentRules = (new DevelopmentRules($developmentVersion))->getRules();
+        $productionRules = (new ProductionRules($productionVersion))->getRules();
 
         // Assert
-        self::assertArrayNotHasKey('session.sid_length', $developmentRules->getRules());
-        self::assertArrayNotHasKey('session.sid_length', $productionRules->getRules());
-        self::assertArrayNotHasKey('report_memleaks', $productionRules->getRules());
+        self::assertArrayNotHasKey('session.sid_length', $developmentRules);
+        self::assertArrayNotHasKey('session.sid_length', $productionRules);
+        self::assertArrayNotHasKey('report_memleaks', $productionRules);
     }
 
-    /** Tests rejects an empty rule set. */
+    /** Tests an empty rule set is rejected. */
     public function testRejectsAnEmptyRuleSet(): void
     {
         // Arrange
         file_put_contents($this->tempIni, "display_errors = Off\n");
-
+        $rules = $this->rules([]);
         $this->expectException(RuntimeException::class);
+
         // Act
-        $this->engine->scanFile($this->tempIni, $this->rules([]));
+        $this->engine->scanFile($this->tempIni, $rules);
     }
 
-    /** Tests rejects directory paths. */
+    /** Tests directory paths are rejected. */
     public function testRejectsDirectoryPaths(): void
     {
         // Arrange
+        $rules = $this->rules(['display_errors' => 'Off']);
         $this->expectException(RuntimeException::class);
+
         // Act
-        $this->engine->scanFile(sys_get_temp_dir(), $this->rules(['display_errors' => 'Off']));
+        $this->engine->scanFile(sys_get_temp_dir(), $rules);
     }
 
-    /** Tests throws for missing file. */
+    /** Tests missing INI files are rejected. */
     public function testThrowsForMissingFile(): void
     {
         // Arrange
+        $missingPath = $this->tempIni . '.missing';
+        $rules = $this->rules(['display_errors' => 'Off']);
         $this->expectException(RuntimeException::class);
+
         // Act
-        $this->engine->scanFile($this->tempIni . '.missing', $this->rules(['display_errors' => 'Off']));
+        $this->engine->scanFile($missingPath, $rules);
     }
 
-    /** Performs the rules test helper operation. */
+    /**
+     * Creates an in-memory rule set for scanner tests.
+     *
+     * @param array<string, string> $rules
+     */
     private function rules(array $rules): RuleSetInterface
     {
         return new class($rules) implements RuleSetInterface {
             private array $rules;
 
+            /** Stores the supplied test rules. */
             public function __construct(array $rules)
             {
                 $this->rules = $rules;
             }
 
+            /** Returns the test rule set name. */
             public function getName(): string
             {
                 return 'Test';
             }
 
+            /** Returns the supplied test rules. */
             public function getRules(): array
             {
                 return $this->rules;
@@ -227,7 +260,12 @@ final class ScannerEngineTest extends TestCase
         };
     }
 
-    /** Performs the result for test helper operation. */
+    /**
+     * Finds one result by setting name.
+     *
+     * @param array<int, array{setting: string, expected: string, current: string, pass: bool}> $results
+     * @return array{setting: string, expected: string, current: string, pass: bool}
+     */
     private function resultFor(array $results, string $setting): array
     {
         foreach ($results as $result) {
