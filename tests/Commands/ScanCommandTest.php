@@ -61,6 +61,19 @@ final class ScanCommandTest extends TestCase
         self::assertStringContainsString('display_errors', $content);
     }
 
+    public function testCommandRejectsInvalidTargetPhpVersion(): void
+    {
+        list($statusCode, $content) = $this->runCommand([
+            'command' => 'scan',
+            '-p' => true,
+            '-i' => $this->tempIni,
+            '--php-version' => 'eight.three',
+        ]);
+
+        self::assertSame(1, $statusCode);
+        self::assertStringContainsString('--php-version must use', $content);
+    }
+
     public function testCommandRejectsDirectoryAsIniPath(): void
     {
         list($statusCode, $content) = $this->runCommand([
