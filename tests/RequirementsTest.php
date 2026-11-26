@@ -6,42 +6,54 @@ namespace Yousha\PhpIniScanner\Tests;
 
 use PHPUnit\Framework\TestCase;
 
-/** Tests requirements behavior. */
+/** Tests project requirements and expected repository contents. */
 final class RequirementsTest extends TestCase
 {
-    /** Tests supported php version. */
+    /** Tests the minimum supported PHP version. */
     public function testSupportedPhpVersion(): void
     {
         // Arrange
+        // Act
+        $versionId = PHP_VERSION_ID;
+
         // Assert
-        self::assertGreaterThanOrEqual(70400, PHP_VERSION_ID);
+        self::assertGreaterThanOrEqual(70400, $versionId);
     }
 
-    /** Tests required php extensions are available. */
+    /** Tests required PHP extensions are available. */
     public function testRequiredPhpExtensionsAreAvailable(): void
     {
         // Arrange
+        // Act
+        $pcreLoaded = extension_loaded('pcre');
+
         // Assert
-        self::assertTrue(extension_loaded('pcre'));
+        self::assertTrue($pcreLoaded);
     }
 
-    /** Tests project directories exist. */
+    /** Tests required project directories exist. */
     public function testProjectDirectoriesExist(): void
     {
         // Arrange
-        // Act
         $root = dirname(__DIR__);
-        foreach (['bin', 'resources', 'src', 'tests'] as $directory) {
+        $directories = ['bin', 'resources', 'src', 'tests'];
+
+        // Act
+        $paths = [];
+        foreach ($directories as $directory) {
+            $paths[] = $root . DIRECTORY_SEPARATOR . $directory;
+        }
+
         // Assert
-            self::assertDirectoryExists($root . DIRECTORY_SEPARATOR . $directory);
+        foreach ($paths as $path) {
+            self::assertDirectoryExists($path);
         }
     }
 
-    /** Tests project files exist. */
+    /** Tests required project files exist. */
     public function testProjectFilesExist(): void
     {
         // Arrange
-        // Act
         $root = dirname(__DIR__);
         $files = [
             '.editorconfig',
@@ -58,9 +70,15 @@ final class RequirementsTest extends TestCase
             'VERSION.txt',
         ];
 
+        // Act
+        $paths = [];
         foreach ($files as $file) {
+            $paths[] = $root . DIRECTORY_SEPARATOR . $file;
+        }
+
         // Assert
-            self::assertFileExists($root . DIRECTORY_SEPARATOR . $file);
+        foreach ($paths as $path) {
+            self::assertFileExists($path);
         }
     }
 }
