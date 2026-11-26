@@ -6,6 +6,7 @@ namespace Yousha\PhpIniScanner\Config;
 
 use Yousha\PhpIniScanner\Contracts\RuleSetInterface;
 
+/** Provides recommended php.ini settings for development environments. */
 final class DevelopmentRules implements RuleSetInterface
 {
     private int $phpVersionId;
