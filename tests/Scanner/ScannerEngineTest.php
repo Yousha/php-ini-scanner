@@ -258,7 +258,7 @@ final class ScannerEngineTest extends TestCase
      */
     private function rules(array $rules): RuleSetInterface
     {
-        return new class($rules) implements RuleSetInterface {
+        return new class ($rules) implements RuleSetInterface {
             private array $rules;
 
             /** Stores the supplied test rules. */
