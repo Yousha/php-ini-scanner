@@ -201,10 +201,17 @@ final class ScannerEngineTest extends TestCase
         // Arrange
         file_put_contents($this->tempIni, "display_errors = Off\n");
         $rules = $this->rules([]);
-        $this->expectException(RuntimeException::class);
 
         // Act
-        $this->engine->scanFile($this->tempIni, $rules);
+        $exception = null;
+        try {
+            $this->engine->scanFile($this->tempIni, $rules);
+        } catch (RuntimeException $caught) {
+            $exception = $caught;
+        }
+
+        // Assert
+        self::assertInstanceOf(RuntimeException::class, $exception);
     }
 
     /** Tests directory paths are rejected. */
@@ -212,10 +219,17 @@ final class ScannerEngineTest extends TestCase
     {
         // Arrange
         $rules = $this->rules(['display_errors' => 'Off']);
-        $this->expectException(RuntimeException::class);
 
         // Act
-        $this->engine->scanFile(sys_get_temp_dir(), $rules);
+        $exception = null;
+        try {
+            $this->engine->scanFile(sys_get_temp_dir(), $rules);
+        } catch (RuntimeException $caught) {
+            $exception = $caught;
+        }
+
+        // Assert
+        self::assertInstanceOf(RuntimeException::class, $exception);
     }
 
     /** Tests missing INI files are rejected. */
@@ -224,10 +238,17 @@ final class ScannerEngineTest extends TestCase
         // Arrange
         $missingPath = $this->tempIni . '.missing';
         $rules = $this->rules(['display_errors' => 'Off']);
-        $this->expectException(RuntimeException::class);
 
         // Act
-        $this->engine->scanFile($missingPath, $rules);
+        $exception = null;
+        try {
+            $this->engine->scanFile($missingPath, $rules);
+        } catch (RuntimeException $caught) {
+            $exception = $caught;
+        }
+
+        // Assert
+        self::assertInstanceOf(RuntimeException::class, $exception);
     }
 
     /**
