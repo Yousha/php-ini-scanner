@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yousha\PhpIniScanner\Contracts;
 
+/** Defines the contract for php.ini configuration rule sets. */
 interface RuleSetInterface
 {
     /**

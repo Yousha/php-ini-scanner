@@ -6,6 +6,7 @@ namespace Yousha\PhpIniScanner\Config;
 
 use Yousha\PhpIniScanner\Contracts\RuleSetInterface;
 
+/** Provides recommended php.ini settings for production environments. */
 final class ProductionRules implements RuleSetInterface
 {
     private int $phpVersionId;
@@ -75,7 +76,7 @@ final class ProductionRules implements RuleSetInterface
         }
 
         if ($this->phpVersionId < 80400) {
-            $rules['session.sid_length'] = '48';
+            $rules['session.sid_length'] = '32';
         }
 
         if ($this->phpVersionId < 80500) {

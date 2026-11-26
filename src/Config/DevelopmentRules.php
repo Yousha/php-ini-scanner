@@ -6,6 +6,7 @@ namespace Yousha\PhpIniScanner\Config;
 
 use Yousha\PhpIniScanner\Contracts\RuleSetInterface;
 
+/** Provides recommended php.ini settings for development environments. */
 final class DevelopmentRules implements RuleSetInterface
 {
     private int $phpVersionId;
@@ -34,7 +35,7 @@ final class DevelopmentRules implements RuleSetInterface
             'display_startup_errors' => 'On',
             'html_errors' => 'Off',
             'zend.exception_ignore_args' => 'Off',
-            'memory_limit' => '128M',
+            'memory_limit' => '512M',
             'max_execution_time' => '120',
             'max_input_time' => '60',
             'post_max_size' => '8M',
@@ -45,7 +46,7 @@ final class DevelopmentRules implements RuleSetInterface
             'session.use_trans_sid' => 'Off',
             'expose_php' => 'On',
             'mail.add_x_header' => 'On',
-            'allow_url_fopen' => 'On',
+            'allow_url_fopen' => 'Off',
             'allow_url_include' => 'Off',
             'cgi.fix_pathinfo' => 'Off',
             'mysqli.allow_local_infile' => 'Off',
@@ -70,7 +71,7 @@ final class DevelopmentRules implements RuleSetInterface
         }
 
         if ($this->phpVersionId < 80400) {
-            $rules['session.sid_length'] = '48';
+            $rules['session.sid_length'] = '32';
         }
 
         if ($this->phpVersionId < 80500) {

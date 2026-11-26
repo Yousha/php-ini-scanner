@@ -15,6 +15,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/** Runs the php.ini configuration audit command. */
 final class ScanCommand extends Command
 {
     private ScannerEngine $scanner;
@@ -55,7 +56,7 @@ final class ScanCommand extends Command
         $targetPhpVersion = $input->getOption('php-version');
         $targetPhpVersionId = PHP_VERSION_ID;
         if ($targetPhpVersion !== null) {
-            if (!preg_match('/^(\\d+)\\.(\\d+)(?:\\.(\\d+))?$/', (string) $targetPhpVersion, $versionParts)) {
+            if (!preg_match('/^(\d+)\.(\d+)(?:\.(\d+))?$/', (string) $targetPhpVersion, $versionParts)) {
                 $errorOutput->writeln('<error>Error: --php-version must use MAJOR.MINOR or MAJOR.MINOR.PATCH format.</error>');
                 return Command::FAILURE;
             }
