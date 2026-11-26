@@ -76,7 +76,7 @@ final class ProductionRules implements RuleSetInterface
         }
 
         if ($this->phpVersionId < 80400) {
-            $rules['session.sid_length'] = '48';
+            $rules['session.sid_length'] = '32';
         }
 
         if ($this->phpVersionId < 80500) {
