@@ -29,6 +29,24 @@ final class RuleSetsTest extends TestCase
         self::assertSame('On', $rules['display_errors']);
     }
 
+    /** Tests both rule sets default to the running PHP version. */
+    public function testRuleSetsDefaultToRuntimePhpVersion(): void
+    {
+        // Arrange
+        $development = new DevelopmentRules();
+        $production = new ProductionRules();
+
+        // Act
+        $developmentRules = $development->getRules();
+        $productionRules = $production->getRules();
+
+        // Assert
+        self::assertSame('32', $developmentRules['session.sid_length']);
+        self::assertSame('32', $productionRules['session.sid_length']);
+        self::assertSame(PHP_VERSION_ID >= 80000, array_key_exists('opcache.jit', $developmentRules));
+        self::assertSame(PHP_VERSION_ID >= 80000, array_key_exists('opcache.jit', $productionRules));
+    }
+
     /** Tests development rules across supported PHP feature thresholds. */
     public function testDevelopmentRulesRespectPhpVersion(): void
     {
