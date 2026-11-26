@@ -1,19 +1,19 @@
 # PHP INI Scanner
 
-A lightweight CLI tool to audit php.ini configurations against development and production standards.
+A lightweight CLI tool to audit `php.ini` configurations against development and production standards.
 
 [![current version](https://img.shields.io/packagist/v/yousha/php-ini-scanner.svg)](https://packagist.org/packages/yousha/php-ini-scanner)
 [![Dependabot Updates](https://github.com/Yousha/php-ini-scanner/actions/workflows/dependabot/dependabot-updates/badge.svg?branch=main)](https://github.com/Yousha/php-ini-scanner/actions/workflows/dependabot/dependabot-updates)
 [![PHP](https://img.shields.io/badge/PHP-7.4-617CBE)](https://php.net/) [![PHP](https://img.shields.io/badge/PHP-8.5-617CBE)](https://php.net/) [![issues](https://img.shields.io/github/issues/yousha/php-ini-scanner)](https://github.com/yousha/php-ini-scanner/issues) ![repo size](https://img.shields.io/github/repo-size/yousha/php-ini-scanner) [![GitHub license](https://img.shields.io/github/license/yousha/php-ini-scanner)](LICENSE)
 
-It compares given settings against industry-standard recommendations for either **Development** or **Production** environments.
+It compares configured settings against recommended values for either **Development** or **Production** environments.
 
-_Built using **SOLID** principles, strict_types=1 and PSR compliance._
+_Built using **SOLID** principles, `strict_types=1`, and PSR-compliant code._
 
 ## Requirements
 
-1. PHP 7.4 – 8.*
-2. Composer >= 2
+- PHP 7.4 or later (PHP 8.x supported).
+- Composer 2 or later.
 
 ## Screenshots
 
@@ -21,35 +21,45 @@ _Built using **SOLID** principles, strict_types=1 and PSR compliance._
 
 ## Installation
 
-Via [Composer](https://getcomposer.org/) per project:
+Install it in a project:
 
 ```shell
 composer require yousha/php-ini-scanner
 ```
 
-Or via [Composer](https://getcomposer.org/) globally:
+Or install it globally:
 
 ```shell
 composer global require yousha/php-ini-scanner
 ```
 
+For a global installation, make sure Composer's global vendor `bin` directory is included in your system `PATH`.
+
 ## Usage
+
+Exactly one environment option is required: `-p` (`--production`) or `-d` (`--development`).
 
 ### Scan for Production
 
-Checks for production environment settings. When scanning a configuration belonging to a different PHP installation, specify its version with `--php-version`:
+Scan a specific configuration file:
 
 ```bash
-php ./vendor/bin/php-ini-scanner scan -p -i /path/to/php.ini --php-version=8.3
+php ./vendor/bin/php-ini-scanner scan -p -i /path/to/php.ini
 ```
 
-Or for Windows paths:
+When the file belongs to a different PHP installation, specify the target version. Version-specific rules accept `MAJOR.MINOR` or `MAJOR.MINOR.PATCH`:
 
 ```bash
-php ./vendor/bin/php-ini-scanner scan -p -i "C:\\Programs\\PHP\\php.ini"
+php ./vendor/bin/php-ini-scanner scan -p -i /path/to/php.ini --php-version=8.3.0
 ```
 
-Or auto-scan current installed PHP:
+On Windows:
+
+```powershell
+php .\\vendor\\bin\\php-ini-scanner scan -p -i "C:\\Programs\\PHP\\php.ini" --php-version=8.3
+```
+
+To scan the automatically loaded configuration for the current PHP runtime:
 
 ```bash
 php ./vendor/bin/php-ini-scanner scan -p
@@ -57,37 +67,68 @@ php ./vendor/bin/php-ini-scanner scan -p
 
 ### Scan for Development
 
-Checks for debugging-friendly settings:
+Scan a specific configuration file:
 
 ```bash
 php ./vendor/bin/php-ini-scanner scan -d -i /path/to/php.ini
 ```
 
-Or for Windows paths:
+You can also specify the PHP version whose version-specific rules should be used:
 
 ```bash
-php ./vendor/bin/php-ini-scanner scan -d -i "C:\\Programs\\PHP\\php.ini"
+php ./vendor/bin/php-ini-scanner scan -d -i /path/to/php.ini --php-version=8.3
 ```
 
-Or auto-scan current installed PHP:
+On Windows:
+
+```powershell
+php .\\vendor\\bin\\php-ini-scanner scan -d -i "C:\\Programs\\PHP\\php.ini"
+```
+
+To scan the automatically loaded configuration for the current PHP runtime:
 
 ```bash
 php ./vendor/bin/php-ini-scanner scan -d
 ```
 
-## Commands
+For a global Composer installation, run `php-ini-scanner` instead of `php ./vendor/bin/php-ini-scanner`.
+
+## Commands and options
 
 | Option | Shortcut | Description |
 | --- | --- | --- |
-| `--production` | `-p` | Uses production rule set. |
-| `--development` | `-d` | Uses development rule set. |
-| `--ini-path` | `-i` | Path to `php.ini` file. |
-| `--php-version` | | Target PHP version used to select version-specific rules (for example `8.3`). Defaults to the PHP version running the scanner. |
+| `--production` | `-p` | Use the production rule set. Exactly one of `-p` or `-d` is required. |
+| `--development` | `-d` | Use the development rule set. Exactly one of `-d` or `-p` is required. |
+| `--ini-path` | `-i` | Path to the `php.ini` file. If omitted, the scanner uses the configuration loaded by the current PHP runtime. |
+| `--php-version` | | Target PHP version used to select version-specific rules. Accepts `MAJOR.MINOR` or `MAJOR.MINOR.PATCH`; defaults to the PHP version running the scanner. |
+
+## Exit codes
+
+- `0`: The scan completed and all checked rules passed.
+- `1`: The scan encountered a failure or error.
+
+## Testing
+
+Run the test suite:
+
+```bash
+composer test
+```
+
+Run the test suite with code coverage:
+
+```bash
+composer test-coverage
+```
+
+Coverage reporting requires a supported PHP coverage driver, such as Xdebug or PCOV.
 
 ## Scan limitations
 
-The scanner performs a static comparison against the single INI file supplied with `--ini-path`. It does not calculate the effective configuration used by a running PHP process. In particular, it cannot account for PHP-FPM pool overrides, additional `conf.d` files, per-directory `.user.ini` files, or runtime changes made with `ini_set()`. When scanning the automatically loaded `php.ini`, additional scanned INI files are reported as a limitation and are not merged into the results. Treat the output as a file-level review, not proof of the effective configuration for CLI, FPM, or another SAPI.
+The scanner performs a static comparison against the single INI file supplied with `--ini-path). It does not calculate the effective configuration used by a running PHP process. In particular, it cannot account for PHP-FPM pool overrides, additional `conf.d` files, per-directory `.user.ini` files, or runtime changes made with `ini_set()`.
+
+When scanning the automatically loaded `php.ini`, additional scanned INI files are reported as a limitation and are not merged into the results. Treat the output as a file-level review, not proof of the effective configuration for CLI, FPM, or another SAPI.
 
 ## License
 
-This open-source software is distributed under the GPL-3.0 license. See [LICENSE](LICENSE) file.
+This open-source software is distributed under the GPL-3.0-only license. See the [LICENSE](LICENSE) file.
