@@ -259,7 +259,7 @@ final class ScannerEngineTest extends TestCase
     public function testIgnoresArrayValuedDirectives(): void
     {
         // Arrange
-        file_put_contents($this->tempIni, "extension[] = first\\nextension[] = second\\n");
+        file_put_contents($this->tempIni, "extension[] = first\nextension[] = second\n");
 
         // Act
         $results = $this->engine->scanFile($this->tempIni, $this->rules([
@@ -275,7 +275,7 @@ final class ScannerEngineTest extends TestCase
     public function testNormalizesAllBooleanAliases(): void
     {
         // Arrange
-        file_put_contents($this->tempIni, "first = FALSE\\nsecond = yes\\nthird = No\\nfourth = TRUE\\n");
+        file_put_contents($this->tempIni, "first = FALSE\nsecond = yes\nthird = No\nfourth = TRUE\n");
 
         // Act
         $results = $this->engine->scanFile($this->tempIni, $this->rules([
@@ -312,7 +312,7 @@ final class ScannerEngineTest extends TestCase
     public function testRejectsMalformedIniFiles(): void
     {
         // Arrange
-        file_put_contents($this->tempIni, "display_errors = \"unterminated\\n");
+        file_put_contents($this->tempIni, "display_errors = \"unterminated\n");
         $rules = $this->rules(['display_errors' => 'Off']);
 
         // Act
