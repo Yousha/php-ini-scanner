@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Yousha\\PhpIniScanner\\Tests;
+namespace Yousha\PhpIniScanner\Tests;
 
-use PHPUnit\\Framework\\TestCase;
+use PHPUnit\Framework\TestCase;
 
 final class RequirementsTest extends TestCase
 {
