@@ -2,71 +2,27 @@
     "name": "yousha/php-ini-scanner",
     "description": "A lightweight CLI tool to audit php.ini configurations against development and production standards.",
     "license": "GPL-3.0-only",
-    "type": "project",
-    "keywords": [
-        "php",
-        "php.ini",
-        "config",
-        "linter",
-        "production",
-        "development",
-        "security-linter",
-        "security-audit",
-        "security-best-practices"
-    ],
-    "authors": [
-        {
-            "name": "Yousha Aleayoub",
-            "email": "y.aleayoub@gmail.com",
-            "homepage": "https://yousha.blog.ir/",
-            "role": "Maintainer, Developer"
-        }
-    ],
+    "keywords": ["php", "php.ini", "config", "linter", "production", "development", "security-linter", "security-audit", "security-best-practices"],
+    "authors": [{"name": "Yousha Aleayoub", "email": "y.aleayoub@gmail.com", "homepage": "https://yousha.blog.ir/", "role": "Maintainer, Developer"}],
     "homepage": "https://github.com/yousha/php-ini-scanner",
-    "support": {
-        "email": "y.aleayoub@gmail.com",
-        "issues": "https://github.com/yousha/php-ini-scanner/issues",
-        "source": "https://github.com/yousha/php-ini-scanner"
-    },
-    "require": {
-        "php": "7.4.* || 8.*",
-        "symfony/console": "^5.4"
-    },
+    "support": {"email": "y.aleayoub@gmail.com", "issues": "https://github.com/yousha/php-ini-scanner/issues", "source": "https://github.com/yousha/php-ini-scanner"},
+    "require": {"php": "7.4.* || 8.*", "symfony/console": "^5.4"},
     "require-dev": {
         "ergebnis/composer-normalize": "2.*",
         "friendsofphp/php-cs-fixer": "3.*",
         "icanhazstring/composer-unused": "0.*",
         "overtrue/phplint": "3.*",
-        "phpunit/phpunit": "^9.6 || ^10.5 || ^11.5 || ^12.0 || ^13.0",
+        "phpunit/phpunit": "^9.6 || ^10.5 || ^11.5 || ^12.0",
         "rector/rector": "2.*"
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "prefer-stable": true,
-    "autoload": {
-        "psr-4": {
-            "Yousha\\\\PhpIniScanner\\\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Yousha\\\\PhpIniScanner\\\\Tests\\\\": "tests/"
-        }
-    },
-    "bin": [
-        "bin/php-ini-scanner"
-    ],
-    "archive": {
-        "exclude": [
-            "*.log",
-            "*.cache",
-            "composer.lock"
-        ]
-    },
+    "autoload": {"psr-4": {"Yousha\\\\PhpIniScanner\\\\": "src/"}},
+    "autoload-dev": {"psr-4": {"Yousha\\\\PhpIniScanner\\\\Tests\\\\": "tests/"}},
+    "bin": ["bin/php-ini-scanner"],
+    "archive": {"exclude": ["*.log", "*.cache", "composer.lock"]},
     "config": {
-        "allow-plugins": {
-            "composer-unused/composer-unused-plugin": true,
-            "ergebnis/composer-normalize": true
-        },
+        "allow-plugins": {"composer-unused/composer-unused-plugin": true, "ergebnis/composer-normalize": true},
         "archive-format": "zip",
         "bin-compat": "full",
         "optimize-autoloader": true,
@@ -75,12 +31,7 @@
         "sort-packages": false,
         "vendor-dir": "vendor"
     },
-    "extra": {
-        "composer-normalize": {
-            "indent-size": 4,
-            "indent-style": "space"
-        }
-    },
+    "extra": {"composer-normalize": {"indent-size": 4, "indent-style": "space"}},
     "scripts": {
         "format-check": "php-cs-fixer check",
         "lint": "phplint && php -l bin/php-ini-scanner",

@@ -77,6 +77,38 @@ final class ScannerEngineTest extends TestCase
         self::assertFalse($results[0]['pass']);
     }
 
+    public function testSessionSidLengthIsAvailableOnlyBeforePhp84(): void
+    {
+        foreach ([70400, 80000, 80399] as $phpVersionId) {
+            $developmentRules = new DevelopmentRules($phpVersionId);
+            $productionRules = new ProductionRules($phpVersionId);
+
+            self::assertArrayHasKey('session.sid_length', $developmentRules->getRules());
+            self::assertArrayHasKey('session.sid_length', $productionRules->getRules());
+        }
+
+        foreach ([80400, 80401, 80500] as $phpVersionId) {
+            $developmentRules = new DevelopmentRules($phpVersionId);
+            $productionRules = new ProductionRules($phpVersionId);
+
+            self::assertArrayNotHasKey('session.sid_length', $developmentRules->getRules());
+            self::assertArrayNotHasKey('session.sid_length', $productionRules->getRules());
+        }
+    }
+
+    public function testJitRulesDoNotRequireOrRecommendAJitBuffer(): void
+    {
+        foreach ([80000, 80399, 80400, 80401, 80500] as $phpVersionId) {
+            $developmentRules = new DevelopmentRules($phpVersionId);
+            $productionRules = new ProductionRules($phpVersionId);
+
+            self::assertSame('disable', $developmentRules->getRules()['opcache.jit']);
+            self::assertSame('disable', $productionRules->getRules()['opcache.jit']);
+            self::assertArrayNotHasKey('opcache.jit_buffer_size', $developmentRules->getRules());
+            self::assertArrayNotHasKey('opcache.jit_buffer_size', $productionRules->getRules());
+        }
+    }
+
     public function testRuleSetsUseTheSpecifiedTargetPhpVersion(): void
     {
         $developmentRules = new DevelopmentRules(80400);
