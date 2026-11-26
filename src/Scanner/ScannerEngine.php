@@ -6,6 +6,7 @@ namespace Yousha\PhpIniScanner\Scanner;
 
 use Yousha\PhpIniScanner\Contracts\RuleSetInterface;
 
+/** Parses php.ini files and evaluates settings against a rule set. */
 final class ScannerEngine
 {
     /**
