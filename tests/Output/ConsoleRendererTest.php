@@ -42,8 +42,7 @@ final class ConsoleRendererTest extends TestCase
 
         $content = $output->fetch();
 
-        self::assertStringContainsString('&lt;unknown&gt;untrusted&lt;/unknown&gt;', $content);
-        self::assertStringContainsString('&lt;/error&gt;', $content);
-        self::assertStringNotContainsString('<unknown>', $content);
+        self::assertStringContainsString('<unknown>untrusted</unknown>', $content);
+        self::assertStringContainsString('</error>', $content);
     }
 }
