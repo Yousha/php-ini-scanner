@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use PhpCsFixer\\Config;
-use PhpCsFixer\\Finder;
+use PhpCsFixer\Config;
+use PhpCsFixer\Finder;
 
 $rules = [
     '@PSR1' => true,
