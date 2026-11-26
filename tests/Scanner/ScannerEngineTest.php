@@ -126,5 +126,6 @@ final class ScannerEngineTest extends TestCase
         }
 
         self::fail('Expected setting was not returned: ' . $setting);
+        return [];
     }
 }
