@@ -12,6 +12,7 @@ _Built using **SOLID** principles, `strict_types=1`, and PSR-compliant code._
 
 ## Requirements
 
+- Windows or GNU/Linux OS
 - PHP 7.4 or later (PHP 8.x supported).
 - Composer 2 or later.
 
@@ -122,12 +123,6 @@ composer test-coverage
 ```
 
 Coverage reporting requires a supported PHP coverage driver, such as Xdebug or PCOV.
-
-## Scan limitations
-
-The scanner performs a static comparison against the single INI file supplied with `--ini-path). It does not calculate the effective configuration used by a running PHP process. In particular, it cannot account for PHP-FPM pool overrides, additional `conf.d` files, per-directory `.user.ini` files, or runtime changes made with `ini_set()`.
-
-When scanning the automatically loaded `php.ini`, additional scanned INI files are reported as a limitation and are not merged into the results. Treat the output as a file-level review, not proof of the effective configuration for CLI, FPM, or another SAPI.
 
 ## License
 
