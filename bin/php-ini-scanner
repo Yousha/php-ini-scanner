@@ -29,8 +29,8 @@ if (!is_file($autoloadPath)) {
 
 require_once $autoloadPath;
 
-use Yousha\\PhpIniScanner\\Commands\\ScanCommand;
-use Symfony\\Component\\Console\\Application;
+use Yousha\PhpIniScanner\Commands\ScanCommand;
+use Symfony\Component\Console\Application;
 
 $versionFile = dirname(__DIR__) . '/VERSION.txt';
 $version = is_file($versionFile) ? trim((string) file_get_contents($versionFile)) : 'unknown';
