@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Yousha\\PhpIniScanner\\Tests\\Commands;
+namespace Yousha\PhpIniScanner\Tests\Commands;
 
-use PHPUnit\\Framework\\TestCase;
-use Symfony\\Component\\Console\\Application;
-use Symfony\\Component\\Console\\Input\\ArrayInput;
-use Symfony\\Component\\Console\\Output\\BufferedOutput;
-use Yousha\\PhpIniScanner\\Commands\\ScanCommand;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
+use Yousha\PhpIniScanner\Commands\ScanCommand;
 
 final class ScanCommandTest extends TestCase
 {
