@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Yousha\PhpIniScanner\Tests\Scanner;
+namespace Yousha\\PhpIniScanner\\Tests\\Scanner;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\\Framework\\TestCase;
 use RuntimeException;
-use Yousha\PhpIniScanner\Config\DevelopmentRules;
-use Yousha\PhpIniScanner\Config\ProductionRules;
-use Yousha\PhpIniScanner\Contracts\RuleSetInterface;
-use Yousha\PhpIniScanner\Scanner\ScannerEngine;
+use Yousha\\PhpIniScanner\\Config\\DevelopmentRules;
+use Yousha\\PhpIniScanner\\Config\\ProductionRules;
+use Yousha\\PhpIniScanner\\Contracts\\RuleSetInterface;
+use Yousha\\PhpIniScanner\\Scanner\\ScannerEngine;
 
 final class ScannerEngineTest extends TestCase
 {
@@ -32,7 +32,7 @@ final class ScannerEngineTest extends TestCase
 
     public function testNormalizesBooleanValuesAndQuotedStrings(): void
     {
-        file_put_contents($this->tempIni, "display_errors = 0\ndefault_mimetype = \"text/html\"\n");
+        file_put_contents($this->tempIni, "display_errors = 0\\ndefault_mimetype = \\"text/html\\"\\n");
 
         $results = $this->engine->scanFile($this->tempIni, $this->rules([
             'display_errors' => 'Off',
@@ -58,7 +58,7 @@ final class ScannerEngineTest extends TestCase
 
     public function testReportsMissingValuesWithoutEmbeddingConsoleMarkup(): void
     {
-        file_put_contents($this->tempIni, "unrelated = value\n");
+        file_put_contents($this->tempIni, "unrelated = value\\n");
 
         $results = $this->engine->scanFile($this->tempIni, $this->rules(['display_errors' => 'Off']));
 
@@ -68,13 +68,45 @@ final class ScannerEngineTest extends TestCase
 
     public function testAcceptsAnEmptyOrCommentOnlyIniFileAndReportsUnsetRules(): void
     {
-        file_put_contents($this->tempIni, "; intentionally empty\n");
+        file_put_contents($this->tempIni, "; intentionally empty\\n");
 
         $results = $this->engine->scanFile($this->tempIni, $this->rules(['display_errors' => 'Off']));
 
         self::assertCount(1, $results);
         self::assertSame('[NOT SET]', $results[0]['current']);
         self::assertFalse($results[0]['pass']);
+    }
+
+    public function testSessionSidLengthIsAvailableOnlyBeforePhp84(): void
+    {
+        foreach ([70400, 80000, 80399] as $phpVersionId) {
+            $developmentRules = new DevelopmentRules($phpVersionId);
+            $productionRules = new ProductionRules($phpVersionId);
+
+            self::assertArrayHasKey('session.sid_length', $developmentRules->getRules());
+            self::assertArrayHasKey('session.sid_length', $productionRules->getRules());
+        }
+
+        foreach ([80400, 80401, 80500] as $phpVersionId) {
+            $developmentRules = new DevelopmentRules($phpVersionId);
+            $productionRules = new ProductionRules($phpVersionId);
+
+            self::assertArrayNotHasKey('session.sid_length', $developmentRules->getRules());
+            self::assertArrayNotHasKey('session.sid_length', $productionRules->getRules());
+        }
+    }
+
+    public function testJitRulesDoNotRequireOrRecommendAJitBuffer(): void
+    {
+        foreach ([80000, 80399, 80400, 80401, 80500] as $phpVersionId) {
+            $developmentRules = new DevelopmentRules($phpVersionId);
+            $productionRules = new ProductionRules($phpVersionId);
+
+            self::assertSame('disable', $developmentRules->getRules()['opcache.jit']);
+            self::assertSame('disable', $productionRules->getRules()['opcache.jit']);
+            self::assertArrayNotHasKey('opcache.jit_buffer_size', $developmentRules->getRules());
+            self::assertArrayNotHasKey('opcache.jit_buffer_size', $productionRules->getRules());
+        }
     }
 
     public function testRuleSetsUseTheSpecifiedTargetPhpVersion(): void
@@ -89,7 +121,7 @@ final class ScannerEngineTest extends TestCase
 
     public function testRejectsAnEmptyRuleSet(): void
     {
-        file_put_contents($this->tempIni, "display_errors = Off\n");
+        file_put_contents($this->tempIni, "display_errors = Off\\n");
 
         $this->expectException(RuntimeException::class);
         $this->engine->scanFile($this->tempIni, $this->rules([]));
