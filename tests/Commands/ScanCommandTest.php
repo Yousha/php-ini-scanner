@@ -148,6 +148,38 @@ final class ScanCommandTest extends TestCase
         }
     }
 
+    /** Tests the CLI reports when PHP starts without a loaded INI file. */
+    public function testCliReportsWhenNoPhpIniIsLoaded(): void
+    {
+        // Arrange
+        $root = dirname(__DIR__, 2);
+        $command = [
+            PHP_BINARY,
+            '-n',
+            $root . '/bin/php-ini-scanner',
+            '-d',
+        ];
+        $descriptors = [
+            0 => ['pipe', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w'],
+        ];
+
+        // Act
+        $process = proc_open($command, $descriptors, $pipes, $root);
+        self::assertIsResource($process);
+        fclose($pipes[0]);
+        $stdout = stream_get_contents($pipes[1]);
+        $stderr = stream_get_contents($pipes[2]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        $statusCode = proc_close($process);
+
+        // Assert
+        self::assertSame(1, $statusCode);
+        self::assertStringContainsString('No php.ini is loaded', $stdout . $stderr);
+    }
+
     /** Tests command handles Symfony console output error streams. */
     public function testCommandSupportsConsoleOutputInterface(): void
     {
