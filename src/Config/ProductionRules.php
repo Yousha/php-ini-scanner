@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Yousha\PhpIniScanner\Config;
+namespace Yousha\\PhpIniScanner\\Config;
 
-use Yousha\PhpIniScanner\Contracts\RuleSetInterface;
+use Yousha\\PhpIniScanner\\Contracts\\RuleSetInterface;
 
 final class ProductionRules implements RuleSetInterface
 {
@@ -74,7 +74,7 @@ final class ProductionRules implements RuleSetInterface
             $rules['error_log_mode'] = '0600';
         }
 
-        if ($this->phpVersionId >= 80300 && $this->phpVersionId < 80400) {
+        if ($this->phpVersionId < 80400) {
             $rules['session.sid_length'] = '48';
         }
 
