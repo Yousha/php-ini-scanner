@@ -120,6 +120,52 @@ final class ScanCommandTest extends TestCase
         self::assertStringContainsString('Failed: 0', $content);
     }
 
+    /** Tests command scans the loaded PHP configuration when no path is supplied. */
+    public function testCommandUsesLoadedPhpConfigurationByDefault(): void
+    {
+        // Arrange
+        $application = new Application();
+        $application->add(new ScanCommand());
+        $application->setAutoExit(false);
+        $output = new BufferedOutput();
+
+        // Act
+        $statusCode = $application->run(new ArrayInput([
+            'command' => 'scan',
+            '-d' => true,
+        ]), $output);
+        $content = $output->fetch();
+
+        // Assert
+        self::assertContains($statusCode, [0, 1]);
+        if (php_ini_loaded_file() !== false) {
+            self::assertStringContainsString('Using loaded PHP configuration:', $content);
+        } else {
+            self::assertStringContainsString('No php.ini is loaded', $content);
+        }
+        if (php_ini_scanned_files() !== false && trim((string) php_ini_scanned_files()) !== '') {
+            self::assertStringContainsString('Additional INI files', $content);
+        }
+    }
+
+    /** Tests command handles Symfony console output error streams. */
+    public function testCommandSupportsConsoleOutputInterface(): void
+    {
+        // Arrange
+        $application = new Application();
+        $application->add(new ScanCommand());
+        $application->setAutoExit(false);
+        $output = new \\Symfony\\Component\\Console\\Output\\ConsoleOutput(
+            \\Symfony\\Component\\Console\\Output\\OutputInterface::VERBOSITY_QUIET
+        );
+
+        // Act
+        $statusCode = $application->run(new ArrayInput(['command' => 'scan']), $output);
+
+        // Assert
+        self::assertSame(1, $statusCode);
+    }
+
     /** Tests scanner exceptions are reported as command failures. */
     public function testCommandReportsScannerFailure(): void
     {
