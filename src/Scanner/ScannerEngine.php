@@ -9,43 +9,45 @@ use Yousha\PhpIniScanner\Contracts\RuleSetInterface;
 final class ScannerEngine
 {
     /**
-     * Parses target ini file and compares its values against provided rule set.
+     * Parses an INI file and compares its explicitly configured values with a rule set.
      *
-     * @param string $filePath Path to php.ini file to be audited.
-     * @param RuleSetInterface $standardRuleSet The set of standards to validate against.
+     * @param string $filePath Path to the INI file.
+     * @param RuleSetInterface $standardRuleSet Rules to validate.
      * @return array<int, array{setting: string, expected: string, current: string, pass: bool}>
-     * @throws \RuntimeException If file is unreadable or parser fails.
      */
     public function scanFile(string $filePath, RuleSetInterface $standardRuleSet): array
     {
-        if (!is_readable($filePath)) {
-            throw new \RuntimeException("Cannot read file: {$filePath}");
+        if (!is_file($filePath) || !is_readable($filePath)) {
+            throw new \RuntimeException("Cannot read INI file: {$filePath}");
         }
 
-        // parse_ini_file ignores CLI's active environment settings.
-        //parse_ini_file
-        $phpConfigs = parse_ini_file($filePath, false, INI_SCANNER_RAW);
-
-        if ($phpConfigs === false) {
-            throw new \RuntimeException("Failed to parse ini file: {$filePath}");
+        $parsedConfigs = parse_ini_file($filePath, true, INI_SCANNER_RAW);
+        if ($parsedConfigs === false) {
+            throw new \RuntimeException("Failed to parse INI file: {$filePath}");
         }
 
-        if ($phpConfigs === []) {
-            throw new \RuntimeException('No PHP configuration were found in the file.');
+        // Only global directives belong to the base configuration; PATH/HOST sections
+        // are conditional overrides and must not be mistaken for global settings.
+        $phpConfigs = array_filter($parsedConfigs, 'is_scalar');
+
+        $standardRules = $standardRuleSet->getRules();
+        if ($standardRules === []) {
+            throw new \RuntimeException('The supplied rule set contains no rules.');
         }
 
         $results = [];
-        $standardRules = $standardRuleSet->getRules();
-
         foreach ($standardRules as $setting => $expectedValue) {
-            // Check if the setting exists in the file, otherwise it's an empty string/null.
-            $normalizedCurrentValue = isset($phpConfigs[$setting]) ? $this->normalizeValue($phpConfigs[$setting]) : '<comment>[NOT SET]</comment>';
-            $normalizedExpectedValue = $this->normalizeValue($expectedValue);
+            $isSet = array_key_exists($setting, $phpConfigs) && is_scalar($phpConfigs[$setting]);
+            $currentValue = $isSet
+                ? $this->normalizeValue((string) $phpConfigs[$setting], (string) $setting)
+                : '[NOT SET]';
+            $expected = $this->normalizeValue((string) $expectedValue, (string) $setting);
+
             $results[] = [
-                'setting' => $setting,
-                'current' => $normalizedCurrentValue,
-                'expected' => $normalizedExpectedValue,
-                'pass' => $normalizedCurrentValue === $normalizedExpectedValue,
+                'setting' => (string) $setting,
+                'current' => $currentValue,
+                'expected' => $expected,
+                'pass' => $isSet && $currentValue === $expected,
             ];
         }
 
@@ -53,17 +55,71 @@ final class ScannerEngine
     }
 
     /**
-     * Normalizes php.ini values into a consistent string format.
-     *
-     * @param string $value The raw configuration value to normalize.
-     * @return string Normalized value as '0', '1', or a lowercase string.
+     * Normalizes quoted, boolean-like, and PHP error-reporting values.
      */
-    private function normalizeValue(string $value): string
+    private function normalizeValue(string $value, string $setting): string
     {
-        return match (strtolower($value)) {
-            'off', '0', 'false', 'no' => 'off',
-            'on', '1', 'true', 'yes' => 'on',
-            default => strtolower($value),
-        };
+        $value = trim($value);
+        if (strlen($value) >= 2) {
+            $first = $value[0];
+            $last = substr($value, -1);
+            if (($first === '"' && $last === '"') || ($first === "'" && $last === "'")) {
+                $value = substr($value, 1, -1);
+            }
+        }
+
+        if ($setting === 'error_reporting') {
+            $mask = $this->parseErrorReportingMask($value);
+            if ($mask !== null) {
+                return (string) $mask;
+            }
+        }
+
+        $value = strtolower(trim($value));
+        switch ($value) {
+            case 'off':
+            case '0':
+            case 'false':
+            case 'no':
+                return 'off';
+            case 'on':
+            case '1':
+            case 'true':
+            case 'yes':
+                return 'on';
+            default:
+                return $value;
+        }
+    }
+
+    /**
+     * Evaluates the common PHP INI error_reporting bitmask form without eval().
+     */
+    private function parseErrorReportingMask(string $expression): ?int
+    {
+        $parts = preg_split('/\s*&\s*/', trim($expression));
+        if ($parts === false || $parts === []) {
+            return null;
+        }
+
+        $mask = null;
+        foreach ($parts as $part) {
+            $part = trim($part);
+            $invert = isset($part[0]) && $part[0] === '~';
+            $constantName = $invert ? trim(substr($part, 1)) : $part;
+
+            if (!preg_match('/^E_[A-Z_]+$/', $constantName) || !defined($constantName)) {
+                return null;
+            }
+
+            $value = (int) constant($constantName);
+            if ($invert) {
+                $value = ~$value;
+            }
+
+            $mask = $mask === null ? $value : ($mask & $value);
+        }
+
+        return $mask;
     }
 }

@@ -37,10 +37,10 @@ composer global require yousha/php-ini-scanner
 
 ### Scan for Production
 
-Checks for production environment settings:
+Checks for production environment settings. When scanning a configuration belonging to a different PHP installation, specify its version with `--php-version`:
 
 ```bash
-php ./vendor/bin/php-ini-scanner scan -p -i /path/to/php.ini
+php ./vendor/bin/php-ini-scanner scan -p -i /path/to/php.ini --php-version=8.3
 
 ```
 
@@ -87,6 +87,7 @@ php ./vendor/bin/php-ini-scanner scan -d
 | `--production` | `-p` | Uses production rule set. |
 | `--development` | `-d` | Uses development rule set. |
 | `--ini-path` | `-i` | Path to `php.ini` file. |
+| `--php-version` | | Target PHP version used to select version-specific rules (for example `8.3`). Defaults to the PHP version running the scanner. |
 
 ## License
 

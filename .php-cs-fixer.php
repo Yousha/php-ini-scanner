@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-use PhpCsFixer\Finder;
-use PhpCsFixer\Config;
+use PhpCsFixer\\Config;
+use PhpCsFixer\\Finder;
 
-static $rules = [
-    '@PSR1'  => true,
-    '@PSR2'  => true,
+$rules = [
+    '@PSR1' => true,
+    '@PSR2' => true,
     '@PSR12' => true,
     '@PER-CS' => true,
-    '@PHP7x4Migration' => true
+    '@PHP7x4Migration' => true,
 ];
 
-static $excludeFolders = [
+$excludeFolders = [
     '.git/',
     '.github/',
     'resources/',
-    'vendor/'
+    'vendor/',
 ];
 
 $finder = Finder::create()

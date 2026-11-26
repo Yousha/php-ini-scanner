@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Yousha\PhpIniScanner\Tests\Scanner;
 
-use Yousha\PhpIniScanner\Scanner\ScannerEngine;
-use Yousha\PhpIniScanner\Config\ProductionRules;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
+use Yousha\PhpIniScanner\Config\DevelopmentRules;
+use Yousha\PhpIniScanner\Config\ProductionRules;
+use Yousha\PhpIniScanner\Contracts\RuleSetInterface;
+use Yousha\PhpIniScanner\Scanner\ScannerEngine;
 
 final class ScannerEngineTest extends TestCase
 {
@@ -14,141 +17,127 @@ final class ScannerEngineTest extends TestCase
 
     private ScannerEngine $engine;
 
-    /**
-     * This method is called before the first test method in the test class is executed.
-     *
-     * @doesNotPerformAssertions
-     *
-     * @return void
-     */
-    public static function setUpBeforeClass(): void {}
-
-    /**
-     * This method is called after the last test method in the test class has been executed.
-     *
-     * @doesNotPerformAssertions
-     *
-     * @return void
-     */
-    public static function tearDownAfterClass(): void
-    {
-        gc_collect_cycles();
-    }
-
-
-    /**
-     * This method is called BEFORE each test method.
-     *
-     * @doesNotPerformAssertions
-     *
-     * @return void
-     */
     protected function setUp(): void
     {
-        parent::setUp();
         $this->engine = new ScannerEngine();
-        $this->tempIni = tempnam(sys_get_temp_dir(), 'test_ini_');
+        $this->tempIni = tempnam(sys_get_temp_dir(), 'php_ini_scanner_');
     }
 
-    /**
-     * This method is called AFTER each test method.
-     *
-     * @doesNotPerformAssertions
-     *
-     * @return void
-     */
     protected function tearDown(): void
     {
-        if (file_exists($this->tempIni)) {
+        if (is_file($this->tempIni)) {
             unlink($this->tempIni);
         }
-
-        parent::tearDown();
     }
 
-    /**
-     * @test
-     *
-     * @small
-     *
-     * @return void
-     */
-    public function testScannerIdentifiesPassingRules(): void
+    public function testNormalizesBooleanValuesAndQuotedStrings(): void
     {
-        // Simulate a php.ini that perfectly matches Production.
-        $content = "display_errors = Off\n";
-        $content .= "log_errors = On\n";
-        $content .= "expose_php = 0\n";
-        file_put_contents($this->tempIni, $content);
-        $rules = new ProductionRules();
-        $results = $this->engine->scanFile($this->tempIni, $rules);
+        file_put_contents($this->tempIni, "display_errors = 0\ndefault_mimetype = \"text/html\"\n");
 
-        // Find specific display_errors result.
-        foreach ($results as $res) {
-            if ($res['setting'] === 'display_errors') {
-                $this->assertTrue($res['pass'], 'display_errors=Off should pass ProductionRules');
-                $this->assertEquals('off', $res['current']);
+        $results = $this->engine->scanFile($this->tempIni, $this->rules([
+            'display_errors' => 'Off',
+            'default_mimetype' => 'text/html',
+        ]));
+
+        self::assertSame('off', $this->resultFor($results, 'display_errors')['current']);
+        self::assertTrue($this->resultFor($results, 'display_errors')['pass']);
+        self::assertSame('text/html', $this->resultFor($results, 'default_mimetype')['current']);
+        self::assertTrue($this->resultFor($results, 'default_mimetype')['pass']);
+    }
+
+    public function testComparesEquivalentErrorReportingBitmasks(): void
+    {
+        file_put_contents($this->tempIni, 'error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT');
+
+        $results = $this->engine->scanFile($this->tempIni, $this->rules([
+            'error_reporting' => 'E_ALL & ~E_DEPRECATED & ~E_STRICT',
+        ]));
+
+        self::assertTrue($this->resultFor($results, 'error_reporting')['pass']);
+    }
+
+    public function testReportsMissingValuesWithoutEmbeddingConsoleMarkup(): void
+    {
+        file_put_contents($this->tempIni, "unrelated = value\n");
+
+        $results = $this->engine->scanFile($this->tempIni, $this->rules(['display_errors' => 'Off']));
+
+        self::assertSame('[NOT SET]', $results[0]['current']);
+        self::assertFalse($results[0]['pass']);
+    }
+
+    public function testAcceptsAnEmptyOrCommentOnlyIniFileAndReportsUnsetRules(): void
+    {
+        file_put_contents($this->tempIni, "; intentionally empty\n");
+
+        $results = $this->engine->scanFile($this->tempIni, $this->rules(['display_errors' => 'Off']));
+
+        self::assertCount(1, $results);
+        self::assertSame('[NOT SET]', $results[0]['current']);
+        self::assertFalse($results[0]['pass']);
+    }
+
+    public function testRuleSetsUseTheSpecifiedTargetPhpVersion(): void
+    {
+        $developmentRules = new DevelopmentRules(80400);
+        $productionRules = new ProductionRules(80500);
+
+        self::assertArrayNotHasKey('session.sid_length', $developmentRules->getRules());
+        self::assertArrayNotHasKey('session.sid_length', $productionRules->getRules());
+        self::assertArrayNotHasKey('report_memleaks', $productionRules->getRules());
+    }
+
+    public function testRejectsAnEmptyRuleSet(): void
+    {
+        file_put_contents($this->tempIni, "display_errors = Off\n");
+
+        $this->expectException(RuntimeException::class);
+        $this->engine->scanFile($this->tempIni, $this->rules([]));
+    }
+
+    public function testRejectsDirectoryPaths(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->engine->scanFile(sys_get_temp_dir(), $this->rules(['display_errors' => 'Off']));
+    }
+
+    public function testThrowsForMissingFile(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->engine->scanFile($this->tempIni . '.missing', $this->rules(['display_errors' => 'Off']));
+    }
+
+    private function rules(array $rules): RuleSetInterface
+    {
+        return new class($rules) implements RuleSetInterface {
+            private array $rules;
+
+            public function __construct(array $rules)
+            {
+                $this->rules = $rules;
+            }
+
+            public function getName(): string
+            {
+                return 'Test';
+            }
+
+            public function getRules(): array
+            {
+                return $this->rules;
+            }
+        };
+    }
+
+    private function resultFor(array $results, string $setting): array
+    {
+        foreach ($results as $result) {
+            if ($result['setting'] === $setting) {
+                return $result;
             }
         }
-    }
 
-    /**
-     * @test
-     *
-     * @small
-     *
-     * @return void
-     */
-    public function testScannerIdentifiesFailingRules(): void
-    {
-        // Secure production file should have display_errors = 0.
-        // We set it to 1 to force a failure.
-        file_put_contents($this->tempIni, "display_errors = On");
-        $rules = new ProductionRules();
-        $results = $this->engine->scanFile($this->tempIni, $rules);
-
-        foreach ($results as $res) {
-            if ($res['setting'] === 'display_errors') {
-                $this->assertFalse($res['pass'], 'display_errors=On should fail ProductionRules');
-                $this->assertEquals('on', $res['current']);
-            }
-        }
-    }
-
-    /**
-     * @test
-     *
-     * @small
-     *
-     * @return void
-     */
-    public function testNormalizationLogic(): void
-    {
-        // PHP ini often uses 'Off', 'On', or empty strings.
-        file_put_contents($this->tempIni, "html_errors = Off\nallow_url_fopen = On");
-        $results = $this->engine->scanFile($this->tempIni, new ProductionRules());
-
-        foreach ($results as $res) {
-            if ($res['setting'] === 'html_errors') {
-                $this->assertEquals('off', $res['current']);
-            }
-
-            if ($res['setting'] === 'allow_url_fopen') {
-                $this->assertEquals('on', $res['current']);
-            }
-        }
-    }
-
-    /**
-     * @test
-     *
-     * @small
-     *
-     * @return void
-     */
-    public function testThrowsExceptionOnMissingFile(): void
-    {
-        $this->expectException(\RuntimeException::class);
-        $this->engine->scanFile('/non/existent/path/php.ini', new ProductionRules());
+        self::fail('Expected setting was not returned: ' . $setting);
+        return [];
     }
 }

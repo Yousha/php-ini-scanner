@@ -2,91 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Yousha\PhpIniScanner\Tests {
+namespace Yousha\PhpIniScanner\Tests;
 
-    use PHPUnit\Framework\TestCase;
-    use Yousha\PhpIniScanner\Commands\ScanCommand;
+use PHPUnit\Framework\TestCase;
+use Yousha\PhpIniScanner\Commands\ScanCommand;
 
-    /**
-     * @group Smoke
-     */
-    final class SmokeTest extends TestCase
+final class SmokeTest extends TestCase
+{
+    public function testComposerCanLoadScanCommand(): void
     {
-        private ScanCommand $scanCommand;
+        self::assertTrue(class_exists(ScanCommand::class));
+    }
 
-        /**
-         * This method is called before the first test method in the test class is executed.
-         *
-         * @doesNotPerformAssertions
-         *
-         * @return void
-         */
-        public static function setUpBeforeClass(): void {}
+    public function testScanCommandCanBeInstantiated(): void
+    {
+        $command = new ScanCommand();
 
-        /**
-         * This method is called after the last test method in the test class has been executed.
-         *
-         * @doesNotPerformAssertions
-         *
-         * @return void
-         */
-        public static function tearDownAfterClass(): void
-        {
-            gc_collect_cycles();
-        }
-
-        /**
-         * This method is called BEFORE each test method.
-         *
-         * @doesNotPerformAssertions
-         *
-         * @return void
-         */
-        protected function setUp(): void
-        {
-            parent::setUp();
-            $this->scanCommand = new ScanCommand();
-        }
-
-        /**
-         * This method is called AFTER each test method.
-         *
-         * @doesNotPerformAssertions
-         *
-         * @return void
-         */
-        protected function tearDown(): void
-        {
-            // Methods finalization codes.
-            parent::tearDown();
-        }
-
-        /**
-         * @test
-         *
-         * @small
-         *
-         * @return void
-         */
-        public function testComposerCanLoadLibraryClass(): void
-        {
-            // AAA
-            $this->assertTrue(class_exists(ScanCommand::class));
-        }
-
-        /**
-         * @test
-         *
-         * @small
-         *
-         * @return void
-         */
-        public function testLinterInstanceIsObject(): void
-        {
-            // AAA
-            $this->assertNotNull($this->scanCommand);
-            // AAA
-            $this->assertIsObject($this->scanCommand);
-        }
+        self::assertInstanceOf(ScanCommand::class, $command);
     }
 }

@@ -8,91 +8,72 @@ use Yousha\PhpIniScanner\Contracts\RuleSetInterface;
 
 final class DevelopmentRules implements RuleSetInterface
 {
-    /**
-     * Returns human-readable name of rule set.
-     *
-     * @return string The rule set identifier ('Development').
-     */
+    private int $phpVersionId;
+
+    /** Uses the supplied target PHP version, or the current runtime version by default. */
+    public function __construct(?int $phpVersionId = null)
+    {
+        $this->phpVersionId = $phpVersionId ?? PHP_VERSION_ID;
+    }
+
+    /** Returns the rule set name. */
     public function getName(): string
     {
         return 'Development';
     }
 
-    /**
-     * Retrieves configuration directives and their target values for development.
-     *
-     * @return array<string, string> Key-value pairs of directive names and expected values.
-     */
+    /** Returns development configuration expectations. */
     public function getRules(): array
     {
         $rules = [
-            // --- Core ---
             'engine' => 'On',
             'short_open_tag' => 'Off',
-
-            // --- Error Handling ---
-            'error_reporting' => 'E_ALL', // Error engine.
+            'error_reporting' => 'E_ALL',
             'display_errors' => 'On',
             'log_errors' => 'On',
             'display_startup_errors' => 'On',
             'html_errors' => 'Off',
             'zend.exception_ignore_args' => 'Off',
-
-            // --- Resources ---
-            'memory_limit' => '128M', // Generous for dev.
-            'max_execution_time' => '120', // Longer for debugging.
+            'memory_limit' => '128M',
+            'max_execution_time' => '120',
             'max_input_time' => '60',
             'post_max_size' => '8M',
-            'max_input_vars' => '1024', // DoS protection.
-
-            // --- Session ---
-            'session.cookie_secure' => 'Off', // Often no HTTPS on localhost.
+            'max_input_vars' => '1024',
+            'session.cookie_secure' => 'Off',
             'session.cookie_httponly' => 'On',
             'session.use_strict_mode' => 'On',
-            'session.use_trans_sid' => 'Off', // Security risk.
-
-            // --- Information Disclosure ---
-            'expose_php' => 'On', // Useful to see version in dev.
-            'mail.add_x_header' => 'On', // Useful to debug in dev.
-
-            // --- File/Network ---
-            'allow_url_fopen' => 'On', // Used by Composer package manager.
-            'allow_url_include' => 'Off', // To match with production envs.
-            'cgi.fix_pathinfo' => 'Off', // Security risk.
-            'mysqli.allow_local_infile' => 'Off', // Security risk. Prevent arbitrary file reads via SQL.
-
-            // --- Performance ---
-            'opcache.enable' => 'Off', // Disable caching for hot reloading.
+            'session.use_trans_sid' => 'Off',
+            'expose_php' => 'On',
+            'mail.add_x_header' => 'On',
+            'allow_url_fopen' => 'On',
+            'allow_url_include' => 'Off',
+            'cgi.fix_pathinfo' => 'Off',
+            'mysqli.allow_local_infile' => 'Off',
+            'opcache.enable' => 'Off',
             'opcache.enable_cli' => 'Off',
             'opcache.log_verbosity_level' => '2',
-
-            // --- Other ---
             'fastcgi.logging' => 'On',
             'enable_dl' => 'Off',
             'date.timezone' => 'UTC',
-            'assert.active' => 'On',
             'default_mimetype' => 'text/html',
+            'zend.assertions' => '1',
         ];
 
-        if (PHP_VERSION_ID >= 80000 && PHP_VERSION_ID <= 80400) {
+        if ($this->phpVersionId >= 80000) {
             $rules['opcache.jit'] = 'disable';
-        }
-
-        if (PHP_VERSION_ID >= 80000) {
             $rules['opcache.record_warnings'] = 'Off';
             $rules['zend.exception_string_param_max_len'] = '15';
         }
 
-        // Log permissions.
-        if (PHP_VERSION_ID >= 80200) {
-            $rules['error_log_mode'] = '0600'; // Owner RW only.
+        if ($this->phpVersionId >= 80200) {
+            $rules['error_log_mode'] = '0600';
         }
 
-        if (PHP_VERSION_ID <= 80300) {
+        if ($this->phpVersionId < 80400) {
             $rules['session.sid_length'] = '48';
         }
 
-        if (PHP_VERSION_ID <= 80400) {
+        if ($this->phpVersionId < 80500) {
             $rules['report_memleaks'] = 'On';
         }
 
