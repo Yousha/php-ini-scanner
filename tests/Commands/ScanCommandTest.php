@@ -180,6 +180,52 @@ final class ScanCommandTest extends TestCase
         self::assertStringContainsString('No php.ini is loaded', $stdout . $stderr);
     }
 
+    /** Tests the command reports when no PHP INI file is loaded. */
+    public function testCommandReportsWhenNoIniFileIsLoaded(): void
+    {
+        // Arrange
+        $loadedIniFileResolver = static function () {
+            return false;
+        };
+        $scannedIniFilesResolver = static function () {
+            return false;
+        };
+
+        // Act
+        [$statusCode, $content] = $this->runCommandWithResolvers(
+            ['command' => 'scan', '-d' => true],
+            $loadedIniFileResolver,
+            $scannedIniFilesResolver
+        );
+
+        // Assert
+        self::assertSame(1, $statusCode);
+        self::assertStringContainsString('No php.ini is loaded', $content);
+    }
+
+    /** Tests the command warns when additional INI files are loaded. */
+    public function testCommandWarnsAboutAdditionalIniFiles(): void
+    {
+        // Arrange
+        $loadedIniFileResolver = function () {
+            return $this->tempIni;
+        };
+        $scannedIniFilesResolver = static function () {
+            return 'additional.ini';
+        };
+
+        // Act
+        [$statusCode, $content] = $this->runCommandWithResolvers(
+            ['command' => 'scan', '-d' => true],
+            $loadedIniFileResolver,
+            $scannedIniFilesResolver
+        );
+
+        // Assert
+        self::assertSame(1, $statusCode);
+        self::assertStringContainsString('Additional INI files', $content);
+    }
+
     /** Tests command handles Symfony console output error streams. */
     public function testCommandSupportsConsoleOutputInterface(): void
     {
@@ -258,6 +304,29 @@ final class ScanCommandTest extends TestCase
         }
 
         file_put_contents($this->tempIni, implode("\n", $lines));
+    }
+
+    /**
+     * Runs the command with controlled PHP INI environment resolvers.
+     *
+     * @param array<string, mixed> $arguments
+     * @param callable $loadedIniFileResolver
+     * @param callable $scannedIniFilesResolver
+     * @return array{0: int, 1: string}
+     */
+    private function runCommandWithResolvers(
+        array $arguments,
+        callable $loadedIniFileResolver,
+        callable $scannedIniFilesResolver
+    ): array {
+        $application = new Application();
+        $application->add(new ScanCommand($loadedIniFileResolver, $scannedIniFilesResolver));
+        $application->setAutoExit(false);
+
+        $output = new BufferedOutput();
+        $statusCode = $application->run(new ArrayInput($arguments), $output);
+
+        return [$statusCode, $output->fetch()];
     }
 
     /** Runs the command and returns its status and output. */
