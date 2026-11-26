@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Yousha\\PhpIniScanner\\Output;
+namespace Yousha\PhpIniScanner\Output;
 
-use Symfony\\Component\\Console\\Formatter\\OutputFormatter;
-use Symfony\\Component\\Console\\Helper\\Table;
-use Symfony\\Component\\Console\\Output\\OutputInterface;
+use Symfony\Component\Console\Formatter\OutputFormatter;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Output\OutputInterface;
 
 final class ConsoleRenderer
 {
