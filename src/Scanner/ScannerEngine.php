@@ -33,11 +33,11 @@ final class ScannerEngine
 
         $results = [];
         foreach ($standardRules as $setting => $expectedValue) {
-            $isSet = array_key_exists($setting, $phpConfigs);
-            $currentValue = $isSet && is_scalar($phpConfigs[$setting])
-                ? $this->normalizeValue((string) $phpConfigs[$setting])
+            $isSet = array_key_exists($setting, $phpConfigs) && is_scalar($phpConfigs[$setting]);
+            $currentValue = $isSet
+                ? $this->normalizeValue((string) $phpConfigs[$setting], (string) $setting)
                 : '[NOT SET]';
-            $expected = $this->normalizeValue((string) $expectedValue);
+            $expected = $this->normalizeValue((string) $expectedValue, (string) $setting);
 
             $results[] = [
                 'setting' => (string) $setting,
@@ -51,9 +51,9 @@ final class ScannerEngine
     }
 
     /**
-     * Normalizes quoted and boolean-like INI scalar values.
+     * Normalizes quoted, boolean-like, and PHP error-reporting values.
      */
-    private function normalizeValue(string $value): string
+    private function normalizeValue(string $value, string $setting): string
     {
         $value = trim($value);
         if (strlen($value) >= 2) {
@@ -64,8 +64,14 @@ final class ScannerEngine
             }
         }
 
-        $value = strtolower(trim($value));
+        if ($setting === 'error_reporting') {
+            $mask = $this->parseErrorReportingMask($value);
+            if ($mask !== null) {
+                return (string) $mask;
+            }
+        }
 
+        $value = strtolower(trim($value));
         switch ($value) {
             case 'off':
             case '0':
@@ -80,5 +86,36 @@ final class ScannerEngine
             default:
                 return $value;
         }
+    }
+
+    /**
+     * Evaluates the common PHP INI error_reporting bitmask form without eval().
+     */
+    private function parseErrorReportingMask(string $expression): ?int
+    {
+        $parts = preg_split('/\\s*&\\s*/', trim($expression));
+        if ($parts === false || $parts === []) {
+            return null;
+        }
+
+        $mask = null;
+        foreach ($parts as $part) {
+            $part = trim($part);
+            $invert = isset($part[0]) && $part[0] === '~';
+            $constantName = $invert ? trim(substr($part, 1)) : $part;
+
+            if (!preg_match('/^E_[A-Z_]+$/', $constantName) || !defined($constantName)) {
+                return null;
+            }
+
+            $value = (int) constant($constantName);
+            if ($invert) {
+                $value = ~$value;
+            }
+
+            $mask = $mask === null ? $value : ($mask & $value);
+        }
+
+        return $mask;
     }
 }
