@@ -1,0 +1,42 @@
+[1.1.0.4] - 2026-11-27
+
+- Added explicit target PHP version selection with --php-version and version-specific rule selection.
+- Expanded automated tests for scanner parsing, CLI behavior, rule sets, output rendering, and PHP-version boundaries.
+- Added a PHP quality workflow and automated dependency updates.
+- Refined development and production recommendations for JIT, OPcache, sessions, error-log permissions, and memory usage.
+- Updated session SID length recommendations across supported PHP versions.
+- Improved INI parsing, normalization, section handling, and malformed configuration handling.
+- Improved CLI validation, default php.ini detection, diagnostics, and exit-code behavior.
+- Escaped untrusted INI values in console output.
+- Aligned Composer constraints and development tooling with supported PHP versions.
+- Standardized tests around Arrange-Act-Assert and expanded class and method documentation.
+- Updated project documentation and usage instructions.
+- Corrected parsing of directives in ordinary INI sections and excluded conditional sections from global checks.
+- Fixed PHP namespace/autoloading and Composer PSR-4 configuration issues.
+- Corrected PHP-version-specific recommendations and error-reporting mask normalization.
+- Handled malformed INI parser warnings consistently.
+- Fixed test fixtures and CLI startup edge cases.
+- Removed obsolete runtime self-tests, deprecated PHPUnit metadata, dead exception handling, and unreachable parser logic.
+- Removed stale, non-portable checksum data.
+
+[1.0.3.3] - 2025-12-21
+
+- Added development and production PHP INI configuration rules.
+- Added PHP-version-aware recommendations for supported PHP versions.
+- Improved rule definitions, scanner parsing, and value normalization.
+- Updated command behavior, console output, documentation, and version metadata.
+- Corrected minor scanner and configuration issues.
+
+[1.0.1.1] - 2025-12-20
+
+- Updated development configuration recommendations.
+- Updated package metadata and PHP compatibility requirements.
+- Refined README documentation and project requirements.
+- Fixed package-install path handling.
+
+[1.0.0.1] - Initial release
+
+- Introduced the command-line PHP INI scanner.
+- Added development and production configuration rule sets.
+- Added INI parsing and comparison against recommended values.
+- Added console reporting of configuration check results.
