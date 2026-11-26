@@ -2,39 +2,40 @@
 
 declare(strict_types=1);
 
-namespace Yousha\PhpIniScanner\Output;
+namespace Yousha\\PhpIniScanner\\Output;
 
-use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\\Component\\Console\\Formatter\\OutputFormatter;
+use Symfony\\Component\\Console\\Helper\\Table;
+use Symfony\\Component\\Console\\Output\\OutputInterface;
 
 final class ConsoleRenderer
 {
     /**
-     * Renders scan results in a formatted table via CLI.
+     * Renders scan results in a formatted table.
      *
-     * @param OutputInterface $output Command output stream.
-     * @param array $results Numerical array of scan result rows.
-     * @param string $mode The environment mode name.
+     * @param array<int, array{setting: string, expected: string, current: string, pass: bool}> $results
      */
     public function render(OutputInterface $output, array $results, string $mode): void
     {
-        $output->writeln(['', "<info>Scan result of php.ini for <comment>{$mode}</comment> environment...</info>", '']);
+        $safeMode = OutputFormatter::escape($mode);
+        $output->writeln(['', "<info>Scan result of php.ini for <comment>{$safeMode}</comment> environment...</info>", '']);
+
         $table = new Table($output);
-        $table->setFooterTitle($mode);
+        $table->setFooterTitle($safeMode);
         $table->setHeaders(['Configuration', 'Current', 'Expected', 'Status']);
 
         $passCount = 0;
-
         foreach ($results as $row) {
-            $status = $row['pass'] ? '<info>PASS</info>' : '<error>FAIL</error>';
-            if ($row['pass']) {
+            $passed = $row['pass'];
+            $status = $passed ? '<info>PASS</info>' : '<error>FAIL</error>';
+            if ($passed) {
                 $passCount++;
             }
 
             $table->addRow([
-                $row['setting'],
-                $row['current'],
-                $row['expected'],
+                OutputFormatter::escape($row['setting']),
+                OutputFormatter::escape($row['current']),
+                OutputFormatter::escape($row['expected']),
                 $status,
             ]);
         }
