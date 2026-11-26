@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Yousha\\PhpIniScanner\\Tests\\Commands;
+namespace Yousha\PhpIniScanner\Tests\Commands;
 
-use PHPUnit\\Framework\\TestCase;
-use Symfony\\Component\\Console\\Application;
-use Symfony\\Component\\Console\\Input\\ArrayInput;
-use Symfony\\Component\\Console\\Output\\BufferedOutput;
-use Yousha\\PhpIniScanner\\Commands\\ScanCommand;
-use Yousha\\PhpIniScanner\\Config\\DevelopmentRules;
-use Yousha\\PhpIniScanner\\Config\\ProductionRules;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
+use Yousha\PhpIniScanner\Commands\ScanCommand;
+use Yousha\PhpIniScanner\Config\DevelopmentRules;
+use Yousha\PhpIniScanner\Config\ProductionRules;
 
 /** Tests scan command behavior. */
 final class ScanCommandTest extends TestCase
@@ -21,7 +21,7 @@ final class ScanCommandTest extends TestCase
     protected function setUp(): void
     {
         $this->tempIni = tempnam(sys_get_temp_dir(), 'test_cli_');
-        file_put_contents($this->tempIni, "display_errors = Off\\nlog_errors = On");
+        file_put_contents($this->tempIni, "display_errors = Off\nlog_errors = On");
     }
 
     /** Cleans up test fixtures. */
@@ -161,7 +161,7 @@ final class ScanCommandTest extends TestCase
             $lines[] = $setting . ' = ' . $value;
         }
 
-        file_put_contents($this->tempIni, implode("\\n", $lines));
+        file_put_contents($this->tempIni, implode("\n", $lines));
     }
 
     /** Runs the command and returns its status and output. */
