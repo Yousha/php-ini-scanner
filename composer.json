@@ -35,7 +35,7 @@
         "ergebnis/composer-normalize": "2.*",
         "friendsofphp/php-cs-fixer": "3.*",
         "overtrue/phplint": "3.*",
-        "phpunit/phpunit": "^9.6 || ^10.5 || ^11.5 || ^12.0",
+        "phpunit/phpunit": "^13.4.8",
         "rector/rector": "2.*"
     },
     "minimum-stability": "stable",
